@@ -13,7 +13,7 @@ import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 import bcrypt
-from sqlmodel import Session
+from sqlmodel import Session, SQLModel
 from app.database.database import crear_tablas, engine
 from app.database.models.autenticacion import Usuario
 from app.database.models.contenido import Categoria, NivelDificultad, Opcion, Pregunta
@@ -418,6 +418,8 @@ PREGUNTAS = [
 
 
 def seed():
+    # Eliminar todas las tablas y recrearlas para partir desde cero
+    SQLModel.metadata.drop_all(engine)
     crear_tablas()
 
     with Session(engine) as session:
