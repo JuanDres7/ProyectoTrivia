@@ -1,0 +1,28 @@
+# Entorno virtual
+.venv/
+venv/
+env/
+
+# Base de datos (cada integrante genera la suya con seed_data.py)
+*.db
+*.sqlite
+*.sqlite3
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+
+# IDEs
+.idea/
+.vscode/
+*.iml
+
+# Archivos temporales de Office (los ~$ son temporales de Word abierto)
+~$*
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
