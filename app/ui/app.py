@@ -1,6 +1,8 @@
 import customtkinter as ctk
 from app.config.settings import ANCHO_VENTANA, ALTO_VENTANA, TITULO_APP, COLOR_FONDO
 from app.services.auth_service import AuthService
+from app.services.contenido_service import ContenidoService
+from app.services.partida_service import PartidaService
 
 
 ctk.set_appearance_mode("dark")
@@ -9,9 +11,13 @@ ctk.set_default_color_theme("blue")
 
 class App(ctk.CTk):
 
-    def __init__(self, auth_service: AuthService):
+    def __init__(self, auth_service: AuthService,
+                 contenido_service: ContenidoService,
+                 partida_service: PartidaService):
         super().__init__()
         self.auth_service = auth_service
+        self.contenido_service = contenido_service
+        self.partida_service = partida_service
         self.title(TITULO_APP)
         self.geometry(f"{ANCHO_VENTANA}x{ALTO_VENTANA}")
         self.resizable(False, False)

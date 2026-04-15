@@ -1,6 +1,10 @@
 from app.database.database import crear_tablas, get_session
 from app.repository.usuario_repository import UsuarioRepository
+from app.repository.contenido_repository import ContenidoRepository
+from app.repository.partida_repository import PartidaRepository
 from app.services.auth_service import AuthService
+from app.services.contenido_service import ContenidoService
+from app.services.partida_service import PartidaService
 from app.ui.app import App
 
 # Importar todos los modelos antes de crear tablas
@@ -14,12 +18,20 @@ def main():
 
     # Inyección de dependencias — capa repository
     usuario_repo = UsuarioRepository(session)
+    contenido_repo = ContenidoRepository(session)
+    partida_repo = PartidaRepository(session)
 
     # Inyección de dependencias — capa services
     auth_service = AuthService(usuario_repo)
+    contenido_service = ContenidoService(contenido_repo)
+    partida_service = PartidaService(partida_repo, contenido_repo)
 
     # Iniciar la aplicación
-    app = App(auth_service=auth_service)
+    app = App(
+        auth_service=auth_service,
+        contenido_service=contenido_service,
+        partida_service=partida_service,
+    )
     app.mainloop()
 
 
