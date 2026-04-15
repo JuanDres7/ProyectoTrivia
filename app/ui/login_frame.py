@@ -8,19 +8,20 @@ from app.config.settings import (
 
 class LoginFrame(ctk.CTkFrame):
 
-    def __init__(self, master, auth_service: AuthService, on_login_exitoso):
+    def __init__(self, master, auth_service: AuthService, on_login_exitoso, on_volver=None):
         super().__init__(master, fg_color=COLOR_FONDO_FRAME, corner_radius=16)
         self.auth_service = auth_service
         self.on_login_exitoso = on_login_exitoso
+        self.on_volver = on_volver
         self._construir_ui()
 
     def _construir_ui(self):
         self.columnconfigure(0, weight=1)
 
-        ctk.CTkLabel(self, text="Sistema de Trivia", font=FUENTE_TITULO, text_color=COLOR_TEXTO).grid(
+        ctk.CTkLabel(self, text="Panel de Administrador", font=FUENTE_TITULO, text_color=COLOR_TEXTO).grid(
             row=0, column=0, pady=(40, 4)
         )
-        ctk.CTkLabel(self, text="Panel de administrador", font=FUENTE_PEQUEÑA, text_color="#aaaaaa").grid(
+        ctk.CTkLabel(self, text="Ingresa tus credenciales para continuar", font=FUENTE_PEQUEÑA, text_color="#aaaaaa").grid(
             row=1, column=0, pady=(0, 30)
         )
 
@@ -37,7 +38,14 @@ class LoginFrame(ctk.CTkFrame):
         ctk.CTkButton(
             self, text="Ingresar", width=280, font=FUENTE_NORMAL,
             fg_color=COLOR_PRIMARIO, command=self._intentar_login
-        ).grid(row=5, column=0, pady=(12, 40))
+        ).grid(row=5, column=0, pady=(12, 8))
+
+        if self.on_volver:
+            ctk.CTkButton(
+                self, text="← Volver", width=280, font=FUENTE_NORMAL,
+                fg_color="transparent", border_width=1, text_color=COLOR_TEXTO,
+                command=self.on_volver
+            ).grid(row=6, column=0, pady=(0, 30))
 
     def _intentar_login(self):
         username = self.entry_usuario.get().strip()

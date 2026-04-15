@@ -24,7 +24,7 @@ class App(ctk.CTk):
         self.configure(fg_color=COLOR_FONDO)
 
         self._frame_actual = None
-        self.mostrar_login()
+        self.mostrar_menu()
 
     # ------------------------------------------------------------------
     # Navegación interna
@@ -50,12 +50,20 @@ class App(ctk.CTk):
         from app.ui.menu_frame import MenuFrame
         self._cambiar_frame(MenuFrame(
             master=self,
-            on_gestionar_preguntas=self.mostrar_admin_preguntas,
+            on_gestionar_preguntas=self.mostrar_login_admin,
             on_iniciar_juego=self.mostrar_ingreso_jugador,
-            on_cerrar_sesion=self.mostrar_login,
         ))
 
     # ---- Admin -------------------------------------------------------
+
+    def mostrar_login_admin(self):
+        from app.ui.login_frame import LoginFrame
+        self._cambiar_frame(LoginFrame(
+            master=self,
+            auth_service=self.auth_service,
+            on_login_exitoso=self.mostrar_admin_preguntas,
+            on_volver=self.mostrar_menu,
+        ))
 
     def mostrar_admin_preguntas(self):
         from app.ui.admin_preguntas_frame import AdminPreguntasFrame
