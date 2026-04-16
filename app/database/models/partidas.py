@@ -39,7 +39,8 @@ class Ranking(SQLModel, table=True):
 
     id: int | None  = Field(default=None, primary_key=True)
     jugador_id: int = Field(foreign_key="jugadores.id")
+    nombre: str = Field(max_length=100)
     nivel_id: int = Field(foreign_key="niveles_dificultad.id")
-    puntaje:int
+    puntaje: int
     es_record_global: bool = Field(default=False)
     fecha: datetime = Field(default_factory=datetime.now)

@@ -66,7 +66,7 @@ class PartidaService:
     # Finalizar partida                                                    #
     # ------------------------------------------------------------------ #
 
-    def finalizar_partida(self, partida_id: int, jugador_id: int,
+    def finalizar_partida(self, partida_id: int, jugador_id: int, nombre_jugador: str,
                           nivel_id: int, respuestas_correctas: int) -> dict:
         """
         Cierra la partida, actualiza el contador del jugador, registra en
@@ -80,7 +80,7 @@ class PartidaService:
         self.partida_repo.incrementar_total_partidas(jugador_id)
 
         record_anterior = self.partida_repo.obtener_record_global()
-        entrada = self.partida_repo.registrar_en_ranking(jugador_id, nivel_id, puntaje_final)
+        entrada = self.partida_repo.registrar_en_ranking(jugador_id, nombre_jugador, nivel_id, puntaje_final)
 
         es_record_global = puntaje_final > record_anterior
         if es_record_global:
@@ -103,7 +103,7 @@ class PartidaService:
     # Consultas                                                            #
     # ------------------------------------------------------------------ #
 
-    def obtener_top10(self) -> list[tuple[Ranking, str]]:
+    def obtener_top10(self) -> list[Ranking]:
         return self.partida_repo.obtener_top10()
 
     def obtener_historial_jugador(self, jugador_id: int) -> list[Partida]:

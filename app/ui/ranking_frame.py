@@ -47,9 +47,9 @@ class RankingFrame(ctk.CTkFrame):
         tree.grid(row=2, column=0, padx=40, pady=(0, 8), sticky="ew")
 
         if self.top10:
-            for pos, (entrada, nombre) in enumerate(self.top10, start=1):
+            for pos, entrada in enumerate(self.top10, start=1):
                 record_txt = "★" if entrada.es_record_global else ""
-                tree.insert("", "end", values=(pos, entrada.jugador_id, nombre, entrada.puntaje, record_txt))
+                tree.insert("", "end", values=(pos, entrada.jugador_id, entrada.nombre, entrada.puntaje, record_txt))
         else:
             tree.insert("", "end", values=("—", "—", "Aún no hay partidas", "—", ""))
 

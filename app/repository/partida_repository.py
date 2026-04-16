@@ -79,8 +79,8 @@ class PartidaRepository:
     # Ranking                                                              #
     # ------------------------------------------------------------------ #
 
-    def registrar_en_ranking(self, jugador_id: int, nivel_id: int, puntaje: int) -> Ranking:
-        entrada = Ranking(jugador_id=jugador_id, nivel_id=nivel_id, puntaje=puntaje)
+    def registrar_en_ranking(self, jugador_id: int, nombre: str, nivel_id: int, puntaje: int) -> Ranking:
+        entrada = Ranking(jugador_id=jugador_id, nombre=nombre, nivel_id=nivel_id, puntaje=puntaje)
         self.session.add(entrada)
         self.session.commit()
         self.session.refresh(entrada)
@@ -107,15 +107,9 @@ class PartidaRepository:
 
         self.session.commit()
 
-    def obtener_top10(self) -> list[tuple[Ranking, str]]:
+    def obtener_top10(self) -> list[Ranking]:
         statement = select(Ranking).order_by(Ranking.puntaje.desc()).limit(10)  # type: ignore[attr-defined]
-        rankings = list(self.session.exec(statement).all())
-        result = []
-        for r in rankings:
-            jugador = self.session.get(Jugador, r.jugador_id)
-            nombre = jugador.nombre if jugador else f"Jugador {r.jugador_id}"
-            result.append((r, nombre))
-        return result
+        return list(self.session.exec(statement).all())
 
     def obtener_historial_jugador(self, jugador_id: int) -> list[Partida]:
         statement = select(Partida).where(Partida.jugador_id == jugador_id)

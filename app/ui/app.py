@@ -145,7 +145,7 @@ class App(ctk.CTk):
                 self.mostrar_pregunta(jugador, partida, preguntas, siguiente, nuevas_correctas)
             else:
                 resultado = self.partida_service.finalizar_partida(
-                    partida.id, jugador.id, partida.nivel_id, nuevas_correctas
+                    partida.id, jugador.id, jugador.nombre, partida.nivel_id, nuevas_correctas
                 )
                 self.mostrar_resultado(nombre_jugador=jugador.nombre, resultado=resultado)
 
