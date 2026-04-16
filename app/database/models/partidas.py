@@ -18,7 +18,7 @@ class Partida(SQLModel, table=True):
     nivel_id: int = Field(foreign_key="niveles_dificultad.id")
     total_preguntas: int
     respuestas_correctas: int = Field(default=0)
-    puntaje_final: int  = Field(default=0)
+    puntaje_final: int = Field(default=0)
     estado: str = Field(default="en_curso")  # en_curso | finalizada | cancelada
     fecha: datetime = Field(default_factory=datetime.now)
 
@@ -37,7 +37,7 @@ class Respuesta(SQLModel, table=True):
 class Ranking(SQLModel, table=True):
     __tablename__ = "ranking"
 
-    id: int | None  = Field(default=None, primary_key=True)
+    id: int | None = Field(default=None, primary_key=True)
     jugador_id: int = Field(foreign_key="jugadores.id")
     nombre: str = Field(max_length=100)
     nivel_id: int = Field(foreign_key="niveles_dificultad.id")

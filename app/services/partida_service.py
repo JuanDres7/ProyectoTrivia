@@ -12,17 +12,8 @@ class PartidaService:
         self.partida_repo = partida_repository
         self.contenido_repo = contenido_repository
 
-    # ------------------------------------------------------------------ #
-    # Inicio de partida                                                    #
-    # ------------------------------------------------------------------ #
-
     def iniciar_partida(self, nombre_jugador: str, nivel_id: int,
                         categoria_ids: list[int] | None = None) -> tuple[Jugador, Partida, list[tuple[Pregunta, list[Opcion]]]]:
-        """
-        Registra al jugador, crea la partida y devuelve las preguntas
-        aleatorias con sus opciones barajadas.
-        Si se indica categoria_ids, solo se usan preguntas de esas categorías.
-        """
         nivel = self.contenido_repo.obtener_nivel_por_id(nivel_id)
         if nivel is None:
             raise ValueError(f"No existe el nivel con id {nivel_id}.")

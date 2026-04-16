@@ -38,12 +38,13 @@ class App(ctk.CTk):
 
     # ---- Auth --------------------------------------------------------
 
-    def mostrar_login(self):
+    def mostrar_login_admin(self):
         from app.ui.login_frame import LoginFrame
         self._cambiar_frame(LoginFrame(
             master=self,
             auth_service=self.auth_service,
-            on_login_exitoso=self.mostrar_menu,
+            on_login_exitoso=self.mostrar_admin_preguntas,
+            on_volver=self.mostrar_menu,
         ))
 
     def mostrar_menu(self):
@@ -64,15 +65,6 @@ class App(ctk.CTk):
         ))
 
     # ---- Admin -------------------------------------------------------
-
-    def mostrar_login_admin(self):
-        from app.ui.login_frame import LoginFrame
-        self._cambiar_frame(LoginFrame(
-            master=self,
-            auth_service=self.auth_service,
-            on_login_exitoso=self.mostrar_admin_preguntas,
-            on_volver=self.mostrar_menu,
-        ))
 
     def mostrar_admin_preguntas(self):
         from app.ui.admin_preguntas_frame import AdminPreguntasFrame

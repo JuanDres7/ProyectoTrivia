@@ -8,7 +8,8 @@ from app.config.settings import (
 class MenuFrame(ctk.CTkFrame):
 
     def __init__(self, master, on_gestionar_preguntas, on_iniciar_juego, on_mostrar_ranking):
-        super().__init__(master, fg_color=COLOR_FONDO_FRAME, corner_radius=16)
+        super().__init__(master, fg_color=COLOR_FONDO_FRAME, corner_radius=16, width=400, height=300)
+        self.grid_propagate(False)
         self.on_gestionar_preguntas = on_gestionar_preguntas
         self.on_iniciar_juego = on_iniciar_juego
         self.on_mostrar_ranking = on_mostrar_ranking
