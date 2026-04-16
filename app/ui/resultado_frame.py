@@ -69,18 +69,20 @@ class ResultadoFrame(ctk.CTkFrame):
                         font=("Roboto", 11, "bold"))
         style.map("Treeview", background=[("selected", "#2b2b2b")])
 
-        cols = ("pos", "jugador", "puntaje", "record")
+        cols = ("pos", "nombre", "jugador_id", "puntaje", "record")
         tree = ttk.Treeview(right, columns=cols, show="headings", height=10, selectmode="none")
         tree.heading("pos", text="#")
-        tree.heading("jugador", text="Jugador")
+        tree.heading("nombre", text="Nombre")
+        tree.heading("jugador_id", text="Jugador ID")
         tree.heading("puntaje", text="Puntaje")
         tree.heading("record", text="Récord")
         tree.column("pos", width=40, anchor="center")
-        tree.column("jugador", width=160, anchor="w")
-        tree.column("puntaje", width=80, anchor="center")
-        tree.column("record", width=60, anchor="center")
+        tree.column("nombre", width=120, anchor="w")
+        tree.column("jugador_id", width=80, anchor="center")
+        tree.column("puntaje", width=70, anchor="center")
+        tree.column("record", width=55, anchor="center")
         tree.pack(padx=16, pady=(0, 16), fill="both", expand=True)
 
         for pos, (entrada, nombre) in enumerate(self.top10, start=1):
             record_txt = "★" if entrada.es_record_global else ""
-            tree.insert("", "end", values=(pos, nombre, entrada.puntaje, record_txt))
+            tree.insert("", "end", values=(pos, nombre, entrada.jugador_id, entrada.puntaje, record_txt))
