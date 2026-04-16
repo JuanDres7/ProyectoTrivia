@@ -1,4 +1,4 @@
-from sqlmodel import Session, select
+from sqlmodel import Session, select, col
 from app.database.models.contenido import Categoria, NivelDificultad, Opcion, Pregunta
 
 
@@ -77,12 +77,16 @@ class ContenidoRepository:
         self.session.refresh(pregunta)
         return pregunta
 
-    def obtener_preguntas(self, nivel_id: int | None = None, solo_activas: bool = True) -> list[Pregunta]:
+    def obtener_preguntas(self, nivel_id: int | None = None,
+                          categoria_ids: list[int] | None = None,
+                          solo_activas: bool = True) -> list[Pregunta]:
         statement = select(Pregunta)
         if solo_activas:
             statement = statement.where(Pregunta.activa == True)
         if nivel_id is not None:
             statement = statement.where(Pregunta.nivel_id == nivel_id)
+        if categoria_ids is not None:
+            statement = statement.where(col(Pregunta.categoria_id).in_(categoria_ids))
         return list(self.session.exec(statement).all())
 
     def obtener_pregunta_por_id(self, pregunta_id: int) -> Pregunta | None:

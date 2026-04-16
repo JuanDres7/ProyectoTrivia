@@ -111,10 +111,13 @@ class App(ctk.CTk):
             on_volver=self.mostrar_ingreso_jugador,
         ))
 
-    def _iniciar_partida(self, nombre_jugador: str, nivel_id: int):
+    def _iniciar_partida(self, nombre_jugador: str, nivel_id: int,
+                         categoria_ids: list[int] | None = None):
         from tkinter import messagebox
         try:
-            jugador, partida, preguntas = self.partida_service.iniciar_partida(nombre_jugador, nivel_id)
+            jugador, partida, preguntas = self.partida_service.iniciar_partida(
+                nombre_jugador, nivel_id, categoria_ids
+            )
         except ValueError as e:
             messagebox.showerror("Error", str(e))
             return

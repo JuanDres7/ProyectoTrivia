@@ -16,10 +16,12 @@ class PartidaService:
     # Inicio de partida                                                    #
     # ------------------------------------------------------------------ #
 
-    def iniciar_partida(self, nombre_jugador: str, nivel_id: int) -> tuple[Jugador, Partida, list[tuple[Pregunta, list[Opcion]]]]:
+    def iniciar_partida(self, nombre_jugador: str, nivel_id: int,
+                        categoria_ids: list[int] | None = None) -> tuple[Jugador, Partida, list[tuple[Pregunta, list[Opcion]]]]:
         """
         Registra al jugador, crea la partida y devuelve las preguntas
         aleatorias con sus opciones barajadas.
+        Si se indica categoria_ids, solo se usan preguntas de esas categorías.
         """
         nivel = self.contenido_repo.obtener_nivel_por_id(nivel_id)
         if nivel is None:
@@ -28,7 +30,7 @@ class PartidaService:
         jugador = self.partida_repo.obtener_o_crear_jugador(nombre_jugador.strip())
         partida = self.partida_repo.crear_partida(jugador.id, nivel_id, nivel.num_preguntas)
 
-        preguntas = self.contenido_repo.obtener_preguntas(nivel_id=nivel_id)
+        preguntas = self.contenido_repo.obtener_preguntas(nivel_id=nivel_id, categoria_ids=categoria_ids)
         if len(preguntas) < nivel.num_preguntas:
             raise ValueError(
                 f"No hay suficientes preguntas para el nivel '{nivel.nombre}'. "
@@ -101,7 +103,7 @@ class PartidaService:
     # Consultas                                                            #
     # ------------------------------------------------------------------ #
 
-    def obtener_top10(self) -> list[Ranking]:
+    def obtener_top10(self) -> list[tuple[Ranking, str]]:
         return self.partida_repo.obtener_top10()
 
     def obtener_historial_jugador(self, jugador_id: int) -> list[Partida]:

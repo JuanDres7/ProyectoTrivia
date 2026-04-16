@@ -107,9 +107,15 @@ class PartidaRepository:
 
         self.session.commit()
 
-    def obtener_top10(self) -> list[Ranking]:
+    def obtener_top10(self) -> list[tuple[Ranking, str]]:
         statement = select(Ranking).order_by(Ranking.puntaje.desc()).limit(10)  # type: ignore[attr-defined]
-        return list(self.session.exec(statement).all())
+        rankings = list(self.session.exec(statement).all())
+        result = []
+        for r in rankings:
+            jugador = self.session.get(Jugador, r.jugador_id)
+            nombre = jugador.nombre if jugador else f"Jugador {r.jugador_id}"
+            result.append((r, nombre))
+        return result
 
     def obtener_historial_jugador(self, jugador_id: int) -> list[Partida]:
         statement = select(Partida).where(Partida.jugador_id == jugador_id)
