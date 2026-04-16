@@ -52,6 +52,15 @@ class App(ctk.CTk):
             master=self,
             on_gestionar_preguntas=self.mostrar_login_admin,
             on_iniciar_juego=self.mostrar_ingreso_jugador,
+            on_mostrar_ranking=self.mostrar_ranking,
+        ))
+
+    def mostrar_ranking(self):
+        from app.ui.ranking_frame import RankingFrame
+        self._cambiar_frame(RankingFrame(
+            master=self,
+            top10=self.partida_service.obtener_top10(),
+            on_volver=self.mostrar_menu,
         ))
 
     # ---- Admin -------------------------------------------------------

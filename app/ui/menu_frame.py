@@ -7,10 +7,11 @@ from app.config.settings import (
 
 class MenuFrame(ctk.CTkFrame):
 
-    def __init__(self, master, on_gestionar_preguntas, on_iniciar_juego):
+    def __init__(self, master, on_gestionar_preguntas, on_iniciar_juego, on_mostrar_ranking):
         super().__init__(master, fg_color=COLOR_FONDO_FRAME, corner_radius=16)
         self.on_gestionar_preguntas = on_gestionar_preguntas
         self.on_iniciar_juego = on_iniciar_juego
+        self.on_mostrar_ranking = on_mostrar_ranking
         self._construir_ui()
 
     def _construir_ui(self):
@@ -24,12 +25,18 @@ class MenuFrame(ctk.CTkFrame):
         )
 
         ctk.CTkButton(
-            self, text="Iniciar Juego", width=280, font=FUENTE_NORMAL,
+            self, text="Iniciar Juego", width=220, font=FUENTE_NORMAL,
             fg_color=COLOR_PRIMARIO, command=self.on_iniciar_juego
         ).grid(row=2, column=0, pady=10)
 
         ctk.CTkButton(
-            self, text="Gestionar Preguntas", width=280, font=FUENTE_NORMAL,
+            self, text="🏆  Ver Ranking", width=220, font=FUENTE_NORMAL,
+            fg_color=COLOR_SECUNDARIO, text_color=COLOR_TEXTO,
+            command=self.on_mostrar_ranking
+        ).grid(row=3, column=0, pady=10)
+
+        ctk.CTkButton(
+            self, text="Gestionar Preguntas", width=220, font=FUENTE_NORMAL,
             fg_color="transparent", border_width=1, text_color=COLOR_TEXTO,
             command=self.on_gestionar_preguntas
-        ).grid(row=3, column=0, pady=(10, 40))
+        ).grid(row=4, column=0, pady=(10, 40))
