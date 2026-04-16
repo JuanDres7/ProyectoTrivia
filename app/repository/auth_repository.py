@@ -2,7 +2,7 @@ from sqlmodel import Session, select
 from app.database.models.autenticacion import Usuario
 
 
-class UsuarioRepository:
+class AuthRepository:
 
     def __init__(self, session: Session):
         self.session = session

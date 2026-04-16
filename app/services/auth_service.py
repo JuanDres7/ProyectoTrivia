@@ -1,10 +1,10 @@
 import bcrypt
-from app.repository.usuario_repository import UsuarioRepository
+from app.repository.auth_repository import AuthRepository
 
 
 class AuthService:
 
-    def __init__(self, usuario_repository: UsuarioRepository):
+    def __init__(self, usuario_repository: AuthRepository):
         self.usuario_repository = usuario_repository
 
     def autenticar(self, username: str, password: str) -> bool:

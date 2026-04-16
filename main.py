@@ -1,5 +1,5 @@
 from app.database.database import crear_tablas, get_session
-from app.repository.usuario_repository import UsuarioRepository
+from app.repository.auth_repository import AuthRepository
 from app.repository.contenido_repository import ContenidoRepository
 from app.repository.partida_repository import PartidaRepository
 from app.services.auth_service import AuthService
@@ -17,7 +17,7 @@ def main():
     session = get_session()
 
     # Inyección de dependencias — capa repository
-    usuario_repo = UsuarioRepository(session)
+    usuario_repo = AuthRepository(session)
     contenido_repo = ContenidoRepository(session)
     partida_repo = PartidaRepository(session)
 
