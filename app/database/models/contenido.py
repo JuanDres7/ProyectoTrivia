@@ -3,7 +3,7 @@ from sqlmodel import SQLModel, Field
 class NivelDificultad(SQLModel, table=True):
     __tablename__ = "niveles_dificultad"
 
-    id: int | None  = Field(default=None, primary_key=True)
+    id: int | None = Field(default=None, primary_key=True)
     nombre: str = Field(max_length=50)
     num_preguntas: int
     tiempo_limite_seg: int
@@ -31,8 +31,8 @@ class Pregunta(SQLModel, table=True):
 class Opcion(SQLModel, table=True):
     __tablename__ = "opciones"
 
-    id:           int | None  = Field(default=None, primary_key=True)
-    pregunta_id:  int         = Field(foreign_key="preguntas.id")
-    letra:        str         = Field(max_length=1)   # A, B, C o D
-    texto:        str         = Field(max_length=255)
-    es_correcta:  bool        = Field(default=False)
+    id: int | None = Field(default=None, primary_key=True)
+    pregunta_id: int = Field(foreign_key="preguntas.id")
+    letra: str = Field(max_length=1)
+    texto: str = Field(max_length=255)
+    es_correcta: bool = Field(default=False)
