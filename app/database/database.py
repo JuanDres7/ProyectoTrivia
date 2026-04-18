@@ -2,7 +2,7 @@ from sqlmodel import SQLModel, Session, create_engine
 
 urlBD = "sqlite:///quiz.db"
 
-engine = create_engine(DATABASE_URL, echo=False)
+engine = create_engine(urlBD, echo=False)
 
 
 def crear_tablas():

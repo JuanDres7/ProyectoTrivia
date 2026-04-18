@@ -3,7 +3,7 @@ import customtkinter as ctk
 from app.database.models.partidas import Ranking
 from app.config.settings import (
     COLOR_PRIMARIO, COLOR_FONDO, COLOR_FONDO_FRAME, COLOR_TEXTO,
-    COLOR_EXITO, FUENTE_TITULO, FUENTE_SUBTITULO, FUENTE_NORMAL, FUENTE_PEQUEÑA,
+    COLOR_EXITO, FUENTE_TITULO, FUENTE_SUBTITULO, FUENTE_NORMAL, FUENTE_PEQUEÑA, COLOR_ERROR,
 )
 
 
@@ -42,17 +42,19 @@ class ResultadoFrame(ctk.CTkFrame):
                      text_color="#aaaaaa").grid(row=3, column=0, pady=(0, 20))
 
         if self.es_record:
-            ctk.CTkLabel(left, text="¡Nuevo récord global! 🏆",
+            ctk.CTkLabel(left, text="¡Nuevo récord alcanzado!",
                          font=FUENTE_SUBTITULO, text_color="#f1c40f").grid(row=4, column=0, pady=8)
         else:
+            ctk.CTkLabel(left, text="No superaste el record actual" + "\nIntenta nuevamente",
+                         font=FUENTE_SUBTITULO, text_color=COLOR_ERROR).grid(row=4, column=0, pady=8)
             ctk.CTkLabel(
                 left,
                 text=f"Récord actual: {self.record_anterior} pts",
                 font=FUENTE_PEQUEÑA, text_color="#888888",
-            ).grid(row=4, column=0, pady=8)
+            ).grid(row=5, column=0, pady=8)
 
         ctk.CTkButton(left, text="Volver al menú", width=260, font=FUENTE_NORMAL,
-                      fg_color=COLOR_PRIMARIO, command=self.on_volver).grid(row=5, column=0, pady=(20, 30))
+                      fg_color=COLOR_PRIMARIO, command=self.on_volver).grid(row=6, column=0, pady=(20, 30))
 
         # Panel derecho — Top 10
         right = ctk.CTkFrame(self, fg_color=COLOR_FONDO_FRAME, corner_radius=12)
