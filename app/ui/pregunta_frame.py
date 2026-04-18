@@ -1,7 +1,7 @@
 import customtkinter as ctk
 from app.database.models.contenido import Opcion, Pregunta
 from app.config.settings import (
-    COLOR_PRIMARIO, COLOR_FONDO, COLOR_FONDO_FRAME, COLOR_TEXTO, COLOR_ERROR,
+    COLOR_PRIMARIO, COLOR_FONDO, COLOR_FONDO_FRAME, COLOR_TEXTO, COLOR_ERROR, COLOR_EXITO,
     FUENTE_SUBTITULO, FUENTE_NORMAL, FUENTE_PEQUEÑA,
 )
 
@@ -64,10 +64,11 @@ class PreguntaFrame(ctk.CTkFrame):
         opciones_frame.columnconfigure(0, weight=1)
         opciones_frame.columnconfigure(1, weight=1)
 
+        self._botones = {}
         for i, opcion in enumerate(self.opciones):
-            row, col = divmod(i, 2)
+            fila, columna = divmod(i, 2)
             opcion_id = opcion.id
-            btn = ctk.CTkButton(
+            boton = ctk.CTkButton(
                 opciones_frame,
                 text=f"  {opcion.letra}.  {opcion.texto}",
                 font=FUENTE_NORMAL,
@@ -77,9 +78,10 @@ class PreguntaFrame(ctk.CTkFrame):
                 anchor="w",
                 height=56,
                 corner_radius=8,
-                command=lambda oid=opcion_id: self._responder(oid),
+                command=lambda id_opcion_actual=opcion_id: self._responder(id_opcion_actual),
             )
-            btn.grid(row=row, column=col, padx=6, pady=6, sticky="ew")
+            boton.grid(row=fila, column=columna, padx=6, pady=6, sticky="ew")
+            self._botones[opcion_id] = boton
 
         # Botón cancelar
         ctk.CTkButton(self, text="Cancelar partida", width=200, font=FUENTE_PEQUEÑA,
@@ -109,8 +111,13 @@ class PreguntaFrame(ctk.CTkFrame):
         if self._respondida:
             return
         self._respondida = True
-        # Respuesta incorrecta automática: usamos la primera opción como placeholder
-        self.on_respuesta(self.opciones[0].id if self.opciones else -1)
+
+        opcion_correcta = next(o for o in self.opciones if o.es_correcta)
+        for boton in self._botones.values():
+            boton.configure(state="disabled", hover_color=boton.cget("fg_color"))
+        self._botones[opcion_correcta.id].configure(fg_color=COLOR_EXITO)
+
+        self.after(1500, lambda: self.on_respuesta(-1))
 
     # ------------------------------------------------------------------
     # Acciones
@@ -122,12 +129,45 @@ class PreguntaFrame(ctk.CTkFrame):
         self._respondida = True
         if self._timer_id:
             self.after_cancel(self._timer_id)
-        self.on_respuesta(opcion_id)
+
+        opcion_correcta = next(o for o in self.opciones if o.es_correcta)
+
+        for id_opcion, boton in self._botones.items():
+            boton.configure(state="disabled", hover_color=boton.cget("fg_color"))
+
+        if opcion_id == opcion_correcta.id:
+            self._botones[opcion_id].configure(fg_color=COLOR_EXITO)
+        else:
+            self._botones[opcion_id].configure(fg_color=COLOR_ERROR)
+            self._botones[opcion_correcta.id].configure(fg_color=COLOR_EXITO)
+
+        self.after(1500, lambda: self.on_respuesta(opcion_id))
 
     def _confirmar_cancelar(self):
-        from tkinter import messagebox
-        if messagebox.askyesno("Cancelar", "¿Seguro que quieres abandonar la partida?"):
+        dialogo = ctk.CTkToplevel(self)
+        dialogo.title("Cancelar partida")
+        dialogo.geometry("340x150")
+        dialogo.resizable(False, False)
+        dialogo.grab_set()
+
+        ctk.CTkLabel(dialogo, text="¿Seguro que quieres abandonar la partida?",
+                     font=FUENTE_NORMAL, text_color=COLOR_TEXTO,
+                     wraplength=300).pack(pady=(24, 16))
+
+        botones_frame = ctk.CTkFrame(dialogo, fg_color="transparent")
+        botones_frame.pack()
+
+        def confirmar():
+            dialogo.destroy()
             self._respondida = True
             if self._timer_id:
                 self.after_cancel(self._timer_id)
             self.on_cancelar()
+
+        ctk.CTkButton(botones_frame, text="Sí, abandonar", width=140,
+                      fg_color=COLOR_ERROR, hover_color="#a93226",
+                      command=confirmar).pack(side="left", padx=8)
+
+        ctk.CTkButton(botones_frame, text="No, continuar", width=140,
+                      fg_color=COLOR_FONDO_FRAME,
+                      command=dialogo.destroy).pack(side="left", padx=8)
