@@ -147,9 +147,13 @@ class PreguntaFrame(ctk.CTkFrame):
     def _confirmar_cancelar(self):
         dialogo = ctk.CTkToplevel(self)
         dialogo.title("Cancelar partida")
-        dialogo.geometry("340x150")
         dialogo.resizable(False, False)
         dialogo.grab_set()
+        dialogo.update_idletasks()
+        ancho, alto = 340, 150
+        x = (dialogo.winfo_screenwidth() - ancho) // 2
+        y = (dialogo.winfo_screenheight() - alto) // 2
+        dialogo.geometry(f"{ancho}x{alto}+{x}+{y}")
 
         ctk.CTkLabel(dialogo, text="¿Seguro que quieres abandonar la partida?",
                      font=FUENTE_NORMAL, text_color=COLOR_TEXTO,
