@@ -12,6 +12,7 @@ class PartidaRepository:
     # ------------------------------------------------------------------ #
 
     def obtener_o_crear_jugador(self, nombre: str) -> Jugador:
+        """Devuelve el jugador con ese nombre o lo crea si no existe."""
         jugador = self.session.exec(
             select(Jugador).where(Jugador.nombre == nombre)
         ).first()
@@ -23,6 +24,7 @@ class PartidaRepository:
         return jugador
 
     def incrementar_total_partidas(self, jugador_id: int) -> None:
+        """Suma una partida al contador histórico del jugador."""
         jugador = self.session.get(Jugador, jugador_id)
         if jugador:
             jugador.total_partidas += 1
@@ -33,6 +35,7 @@ class PartidaRepository:
     # ------------------------------------------------------------------ #
 
     def crear_partida(self, jugador_id: int, nivel_id: int, total_preguntas: int) -> Partida:
+        """Crea una nueva partida en estado 'en_curso' y la persiste en la BD."""
         partida = Partida(
             jugador_id=jugador_id,
             nivel_id=nivel_id,
@@ -45,12 +48,14 @@ class PartidaRepository:
         return partida
 
     def actualizar_estado_partida(self, partida_id: int, estado: str) -> None:
+        """Cambia el estado de una partida (en_curso, finalizada, cancelada)."""
         partida = self.session.get(Partida, partida_id)
         if partida:
             partida.estado = estado
             self.session.commit()
 
     def finalizar_partida(self, partida_id: int, respuestas_correctas: int, puntaje_final: int) -> None:
+        """Guarda el resultado final y marca la partida como finalizada."""
         partida = self.session.get(Partida, partida_id)
         if partida:
             partida.respuestas_correctas = respuestas_correctas
@@ -64,6 +69,7 @@ class PartidaRepository:
 
     def registrar_respuesta(self, partida_id: int, pregunta_id: int,
                             opcion_elegida_id: int, es_correcta: bool) -> Respuesta:
+        """Persiste la respuesta del jugador a una pregunta de la partida."""
         respuesta = Respuesta(
             partida_id=partida_id,
             pregunta_id=pregunta_id,
@@ -80,6 +86,7 @@ class PartidaRepository:
     # ------------------------------------------------------------------ #
 
     def registrar_en_ranking(self, jugador_id: int, nombre: str, nivel_id: int, puntaje: int) -> Ranking:
+        """Agrega una nueva entrada al ranking con el puntaje obtenido."""
         entrada = Ranking(jugador_id=jugador_id, nombre=nombre, nivel_id=nivel_id, puntaje=puntaje)
         self.session.add(entrada)
         self.session.commit()
@@ -94,7 +101,7 @@ class PartidaRepository:
         return max(r.puntaje for r in resultados)
 
     def marcar_record_global(self, ranking_id: int) -> None:
-        # Quita el flag anterior
+        """Quita el flag de récord anterior y lo asigna a la nueva entrada."""
         anteriores = self.session.exec(
             select(Ranking).where(Ranking.es_record_global == True)
         ).all()
@@ -108,9 +115,11 @@ class PartidaRepository:
         self.session.commit()
 
     def obtener_top10(self) -> list[Ranking]:
+        """Devuelve las 10 mejores entradas del ranking ordenadas por puntaje."""
         statement = select(Ranking).order_by(Ranking.puntaje.desc()).limit(10)  # type: ignore[attr-defined]
         return list(self.session.exec(statement).all())
 
     def obtener_historial_jugador(self, jugador_id: int) -> list[Partida]:
+        """Devuelve todas las partidas jugadas por un jugador específico."""
         statement = select(Partida).where(Partida.jugador_id == jugador_id)
         return list(self.session.exec(statement).all())

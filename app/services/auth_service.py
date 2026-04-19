@@ -7,6 +7,7 @@ class AuthService:
         self.auth_repository = auth_repository
 
     def autenticar(self, username: str, password: str) -> bool:
+        """Verifica las credenciales del administrador. Devuelve True si son correctas."""
         usuario = self.auth_repository.obtener_por_username(username)
         if usuario is None:
             return False
