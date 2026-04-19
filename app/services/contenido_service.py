@@ -65,9 +65,10 @@ class ContenidoService:
             raise ValueError("Ya existe una pregunta con ese enunciado.")
         return self.repo.crear_pregunta(enunciado, nivel_id, opciones, categoria_id)
 
-    def listar_preguntas(self, nivel_id: int | None = None) -> list[Pregunta]:
-        """Devuelve todas las preguntas, opcionalmente filtradas por nivel."""
-        return self.repo.obtener_preguntas(nivel_id)
+    def listar_preguntas(self, nivel_id: int | None = None,
+                         solo_activas: bool = True) -> list[Pregunta]:
+        """Devuelve preguntas filtradas por nivel y opcionalmente solo las activas."""
+        return self.repo.obtener_preguntas(nivel_id, solo_activas=solo_activas)
 
     def obtener_pregunta_con_opciones(self, pregunta_id: int) -> tuple[Pregunta, list[Opcion]]:
         """Devuelve una pregunta junto con su lista de opciones de respuesta."""
@@ -92,6 +93,18 @@ class ContenidoService:
         """Desactiva una pregunta para que no aparezca en las partidas."""
         if not self.repo.desactivar_pregunta(pregunta_id):
             raise ValueError(f"No existe la pregunta con id {pregunta_id}.")
+
+    def toggle_activa_pregunta(self, pregunta_id: int) -> bool:
+        """Activa o desactiva una pregunta según su estado actual. Devuelve el nuevo valor de activa."""
+        pregunta = self.repo.obtener_pregunta_por_id(pregunta_id)
+        if pregunta is None:
+            raise ValueError(f"No existe la pregunta con id {pregunta_id}.")
+        if pregunta.activa:
+            self.repo.desactivar_pregunta(pregunta_id)
+            return False
+        else:
+            self.repo.activar_pregunta(pregunta_id)
+            return True
 
     # ------------------------------------------------------------------ #
     # Validaciones internas                                                #

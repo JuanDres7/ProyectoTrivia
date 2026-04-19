@@ -144,6 +144,15 @@ class ContenidoRepository:
         self.session.commit()
         return True
 
+    def activar_pregunta(self, pregunta_id: int) -> bool:
+        """Reactiva una pregunta inactiva para que vuelva a aparecer en partidas. Devuelve False si no existe."""
+        pregunta = self.session.get(Pregunta, pregunta_id)
+        if pregunta is None:
+            return False
+        pregunta.activa = True
+        self.session.commit()
+        return True
+
     def existe_enunciado(self, enunciado: str, excluir_id: int | None = None) -> bool:
         """Verifica si ya existe una pregunta con ese enunciado, excluyendo opcionalmente un id."""
         statement = select(Pregunta).where(Pregunta.enunciado == enunciado)
