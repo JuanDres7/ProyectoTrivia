@@ -67,7 +67,7 @@ class App(ctk.CTk):
     # ---- Admin -------------------------------------------------------
 
     def mostrar_admin_preguntas(self):
-        from app.ui.admin_preguntas_frame import AdminPreguntasFrame
+        from app.ui.admin.preguntas_frame import AdminPreguntasFrame
         self._cambiar_frame(AdminPreguntasFrame(
             master=self,
             contenido_service=self.contenido_service,
@@ -77,7 +77,7 @@ class App(ctk.CTk):
         ))
 
     def mostrar_admin_categorias(self):
-        from app.ui.admin_categorias_frame import AdminCategoriasFrame
+        from app.ui.admin.categorias_frame import AdminCategoriasFrame
         self._cambiar_frame(AdminCategoriasFrame(
             master=self,
             contenido_service=self.contenido_service,
@@ -85,7 +85,7 @@ class App(ctk.CTk):
         ))
 
     def mostrar_admin_niveles(self):
-        from app.ui.admin_niveles_frame import AdminNivelesFrame
+        from app.ui.admin.niveles_frame import AdminNivelesFrame
         self._cambiar_frame(AdminNivelesFrame(
             master=self,
             contenido_service=self.contenido_service,
@@ -95,7 +95,7 @@ class App(ctk.CTk):
     # ---- Juego -------------------------------------------------------
 
     def mostrar_ingreso_jugador(self):
-        from app.ui.ingreso_jugador_frame import IngresoJugadorFrame
+        from app.ui.juego.ingreso_jugador_frame import IngresoJugadorFrame
         self._cambiar_frame(IngresoJugadorFrame(
             master=self,
             on_continuar=self.mostrar_seleccion_nivel,
@@ -103,7 +103,7 @@ class App(ctk.CTk):
         ))
 
     def mostrar_seleccion_nivel(self, nombre_jugador: str):
-        from app.ui.seleccion_nivel_frame import SeleccionNivelFrame
+        from app.ui.juego.seleccion_nivel_frame import SeleccionNivelFrame
         self._cambiar_frame(SeleccionNivelFrame(
             master=self,
             contenido_service=self.contenido_service,
@@ -123,8 +123,7 @@ class App(ctk.CTk):
         self.mostrar_pregunta(sesion)
 
     def mostrar_pregunta(self, sesion):
-        from app.ui.pregunta_frame import PreguntaFrame
-        from app.services.partida_service import SesionPartida
+        from app.ui.juego.pregunta_frame import PreguntaFrame
 
         def on_respuesta(opcion_id: int):
             self.partida_service.responder_en_sesion(sesion, opcion_id)
@@ -154,7 +153,7 @@ class App(ctk.CTk):
         ))
 
     def mostrar_resultado(self, nombre_jugador: str, resultado: dict):
-        from app.ui.resultado_frame import ResultadoFrame
+        from app.ui.juego.resultado_frame import ResultadoFrame
         self._cambiar_frame(ResultadoFrame(
             master=self,
             nombre_jugador=nombre_jugador,

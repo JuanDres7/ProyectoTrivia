@@ -3,42 +3,7 @@ from app.repository.partida_repository import PartidaRepository
 from app.repository.contenido_repository import ContenidoRepository
 from app.database.models.contenido import NivelDificultad, Opcion, Pregunta
 from app.database.models.partidas import Jugador, Partida, Ranking
-
-
-class SesionPartida:
-    """Encapsula el estado de una partida en curso."""
-
-    def __init__(self, jugador: Jugador, partida: Partida,
-                 preguntas: list[tuple[Pregunta, list[Opcion]]]):
-        self.jugador = jugador
-        self.partida = partida
-        self._preguntas = preguntas
-        self._indice = 0
-        self._correctas = 0
-
-    @property
-    def numero_actual(self) -> int:
-        return self._indice + 1
-
-    @property
-    def total_preguntas(self) -> int:
-        return len(self._preguntas)
-
-    @property
-    def correctas(self) -> int:
-        return self._correctas
-
-    def pregunta_actual(self) -> tuple[Pregunta, list[Opcion]]:
-        return self._preguntas[self._indice]
-
-    def hay_siguiente(self) -> bool:
-        return self._indice < len(self._preguntas) - 1
-
-    def avanzar(self) -> None:
-        self._indice += 1
-
-    def registrar_correcta(self) -> None:
-        self._correctas += 1
+from app.services.sesion_partida import SesionPartida
 
 
 class PartidaService:
