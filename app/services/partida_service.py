@@ -3,6 +3,7 @@ from app.repository.partida_repository import PartidaRepository
 from app.repository.contenido_repository import ContenidoRepository
 from app.database.models.contenido import NivelDificultad, Opcion, Pregunta
 from app.database.models.partidas import Jugador, Partida, Ranking
+from app.services.sesion_partida import SesionPartida
 
 
 class PartidaService:
@@ -36,6 +37,34 @@ class PartidaService:
             preguntas_con_opciones.append((pregunta, opciones))
 
         return jugador, partida, preguntas_con_opciones
+
+    def iniciar_sesion(self, nombre_jugador: str, nivel_id: int,
+                       categoria_ids: list[int] | None = None) -> SesionPartida:
+        """Crea una sesión de juego lista para usar."""
+        jugador, partida, preguntas = self.iniciar_partida(nombre_jugador, nivel_id, categoria_ids)
+        return SesionPartida(jugador, partida, preguntas)
+
+    def responder_en_sesion(self, sesion: SesionPartida, opcion_elegida_id: int) -> bool:
+        """Registra la respuesta de la pregunta actual y actualiza la sesión."""
+        pregunta, _ = sesion.pregunta_actual()
+        es_correcta = self.responder_pregunta(sesion.partida.id, pregunta.id, opcion_elegida_id)
+        if es_correcta:
+            sesion.registrar_correcta()
+        return es_correcta
+
+    def finalizar_sesion(self, sesion: SesionPartida) -> dict:
+        """Cierra la sesión y devuelve el resultado final."""
+        return self.finalizar_partida(
+            sesion.partida.id,
+            sesion.jugador.id,
+            sesion.jugador.nombre,
+            sesion.partida.nivel_id,
+            sesion.correctas,
+        )
+
+    def cancelar_sesion(self, sesion: SesionPartida) -> None:
+        """Cancela la partida de la sesión."""
+        self.cancelar_partida(sesion.partida.id)
 
     # ------------------------------------------------------------------ #
     # Responder pregunta                                                   #

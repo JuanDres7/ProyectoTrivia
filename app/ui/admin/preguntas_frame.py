@@ -75,23 +75,30 @@ class AdminPreguntasFrame(ctk.CTkFrame):
                         font=("Roboto", 11, "bold"))
         style.map("Treeview", background=[("selected", "#1f6aa5")])
 
-        cols = ("id", "enunciado", "nivel")
+        cols = ("id", "enunciado", "nivel", "estado")
         self._tree = ttk.Treeview(left, columns=cols, show="headings", height=16)
-        self._tree.heading("id", text="ID")
+        self._tree.heading("id",       text="ID")
         self._tree.heading("enunciado", text="Enunciado")
-        self._tree.heading("nivel", text="Nivel")
-        self._tree.column("id", width=35, anchor="center")
-        self._tree.column("enunciado", width=250)
-        self._tree.column("nivel", width=60, anchor="center")
+        self._tree.heading("nivel",    text="Nivel")
+        self._tree.heading("estado",   text="Estado")
+        self._tree.column("id",        width=35,  anchor="center")
+        self._tree.column("enunciado", width=195)
+        self._tree.column("nivel",     width=55,  anchor="center")
+        self._tree.column("estado",    width=70,  anchor="center")
+        self._tree.tag_configure("inactiva", foreground="#777777")
         self._tree.pack(fill="both", expand=True, padx=10, pady=(0, 6))
         self._tree.bind("<<TreeviewSelect>>", self._on_seleccionar)
 
         btn_bar = ctk.CTkFrame(left, fg_color="transparent")
         btn_bar.pack(fill="x", padx=10, pady=(0, 10))
-        ctk.CTkButton(btn_bar, text="Nueva", font=FUENTE_PEQUEÑA, width=100,
+        ctk.CTkButton(btn_bar, text="Nueva", font=FUENTE_PEQUEÑA, width=80,
                       fg_color=COLOR_EXITO, text_color="#000000",
                       command=self._limpiar_formulario).pack(side="left")
-        ctk.CTkButton(btn_bar, text="Eliminar", font=FUENTE_PEQUEÑA, width=100,
+        self._btn_toggle = ctk.CTkButton(btn_bar, text="Desactivar", font=FUENTE_PEQUEÑA, width=90,
+                                          fg_color=COLOR_SECUNDARIO, state="disabled",
+                                          command=self._toggle_activa)
+        self._btn_toggle.pack(side="left", padx=6)
+        ctk.CTkButton(btn_bar, text="Eliminar", font=FUENTE_PEQUEÑA, width=80,
                       fg_color=COLOR_ERROR, command=self._eliminar).pack(side="right")
 
         # Panel derecho — formulario
@@ -160,16 +167,19 @@ class AdminPreguntasFrame(ctk.CTkFrame):
     def _cargar_preguntas(self):
         filtro = self._filtro_nivel.get()
         nivel_id = self._niveles_map.get(filtro) if filtro != "Todos" else None
-        preguntas = self.contenido_service.listar_preguntas(nivel_id)
+        preguntas = self.contenido_service.listar_preguntas(nivel_id, solo_activas=False)
 
         niveles_por_id = {v: k for k, v in self._niveles_map.items()}
 
         for row in self._tree.get_children():
             self._tree.delete(row)
         for p in preguntas:
-            enunciado = p.enunciado if len(p.enunciado) <= 40 else p.enunciado[:37] + "..."
+            enunciado = p.enunciado if len(p.enunciado) <= 32 else p.enunciado[:29] + "..."
+            estado = "Activa" if p.activa else "Inactiva"
+            tag = () if p.activa else ("inactiva",)
             self._tree.insert("", "end", iid=str(p.id),
-                              values=(p.id, enunciado, niveles_por_id.get(p.nivel_id, "?")))
+                              values=(p.id, enunciado, niveles_por_id.get(p.nivel_id, "?"), estado),
+                              tags=tag)
 
     # ------------------------------------------------------------------
     # Acciones
@@ -202,6 +212,23 @@ class AdminPreguntasFrame(ctk.CTkFrame):
                     self._correcta_var.set(i)
 
         self._lbl_form_error.configure(text="")
+        self._actualizar_btn_toggle(pregunta.activa)
+
+    def _actualizar_btn_toggle(self, activa: bool):
+        if activa:
+            self._btn_toggle.configure(text="Desactivar", fg_color=COLOR_SECUNDARIO, state="normal")
+        else:
+            self._btn_toggle.configure(text="Activar", fg_color=COLOR_EXITO, text_color="#000000", state="normal")
+
+    def _toggle_activa(self):
+        if self._pregunta_id_seleccionada is None:
+            return
+        try:
+            nueva_activa = self.contenido_service.toggle_activa_pregunta(self._pregunta_id_seleccionada)
+            self._cargar_preguntas()
+            self._actualizar_btn_toggle(nueva_activa)
+        except ValueError as e:
+            messagebox.showerror("Error", str(e))
 
     def _limpiar_formulario(self):
         self._pregunta_id_seleccionada = None
@@ -210,6 +237,7 @@ class AdminPreguntasFrame(ctk.CTkFrame):
             var.set("")
         self._correcta_var.set(0)
         self._lbl_form_error.configure(text="")
+        self._btn_toggle.configure(state="disabled", text="Desactivar", fg_color=COLOR_SECUNDARIO)
         self._tree.selection_remove(self._tree.selection())
 
     def _guardar(self):

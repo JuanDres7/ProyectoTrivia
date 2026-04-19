@@ -29,10 +29,6 @@ class AdminNivelesFrame(ctk.CTkFrame):
                       fg_color="transparent", border_width=1, text_color=COLOR_TEXTO,
                       command=self.on_volver).pack(side="right", padx=12, pady=8)
 
-        # Nota informativa
-        ctk.CTkLabel(self, text="Los niveles son fijos y se configuran en scripts/seed_data.py",
-                     font=FUENTE_PEQUEÑA, text_color="#888888").pack(pady=(16, 6))
-
         # Tabla
         container = ctk.CTkFrame(self, fg_color=COLOR_FONDO_FRAME, corner_radius=8, width=600)
         container.pack(pady=10)
