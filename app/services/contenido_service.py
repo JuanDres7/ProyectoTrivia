@@ -118,7 +118,7 @@ class ContenidoService:
             raise ValueError("La pregunta debe tener exactamente 4 opciones.")
         for op in opciones:
             if not op.get("texto", "").strip():
-                raise ValueError(f"La opción {op.get('letra', '')} no puede estar vacía.")
+                raise ValueError(f"La pregunta no puede contener opciones vacias.")
         correctas = sum(1 for op in opciones if op.get("es_correcta"))
         if correctas != 1:
             raise ValueError("Exactamente una opción debe ser la correcta.")

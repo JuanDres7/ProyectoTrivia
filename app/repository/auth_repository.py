@@ -7,5 +7,6 @@ class AuthRepository:
         self.session = session
 
     def obtener_por_username(self, username: str) -> Usuario | None:
+        """Obtiene el Usuario con el username correspondiente."""
         statement = select(Usuario).where(Usuario.username == username)
         return self.session.exec(statement).first()
