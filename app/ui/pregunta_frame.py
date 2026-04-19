@@ -114,7 +114,7 @@ class PreguntaFrame(ctk.CTkFrame):
 
         opcion_correcta = next(o for o in self.opciones if o.es_correcta)
         for boton in self._botones.values():
-            boton.configure(state="disabled", hover_color=boton.cget("fg_color"))
+            boton.configure(state="disabled", hover_color=boton.cget("fg_color"), text_color="white")
         self._botones[opcion_correcta.id].configure(fg_color=COLOR_EXITO, text_color="white")
 
         self.after(1500, lambda: self.on_respuesta(-1))
@@ -133,7 +133,7 @@ class PreguntaFrame(ctk.CTkFrame):
         opcion_correcta = next(o for o in self.opciones if o.es_correcta)
 
         for id_opcion, boton in self._botones.items():
-            boton.configure(state="disabled", hover_color=boton.cget("fg_color"))
+            boton.configure(state="disabled", hover_color=boton.cget("fg_color"), text_color="white")
 
         if opcion_id == opcion_correcta.id:
             self._botones[opcion_id].configure(fg_color=COLOR_EXITO, text_color="white")
