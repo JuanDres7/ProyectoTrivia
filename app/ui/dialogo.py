@@ -34,7 +34,7 @@ def mostrar_aviso(master, mensaje: str) -> None:
 
 
 def confirmar(master, mensaje: str, on_si) -> None:
-    dialogo = _base(master, "Confirmar", mensaje, ancho=360, alto=160)
+    dialogo = _base(master, "Sistema de Trivia", mensaje, ancho=360, alto=160)
     fila = ctk.CTkFrame(dialogo, fg_color="transparent")
     fila.pack()
 
