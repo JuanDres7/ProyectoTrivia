@@ -75,6 +75,7 @@ class PreguntaFrame(ctk.CTkFrame):
                 fg_color=COLOR_FONDO_FRAME,
                 hover_color=COLOR_PRIMARIO,
                 text_color=COLOR_TEXTO,
+                text_color_disabled="white",
                 anchor="w",
                 height=56,
                 corner_radius=8,
