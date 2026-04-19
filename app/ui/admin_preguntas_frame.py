@@ -116,7 +116,7 @@ class AdminPreguntasFrame(ctk.CTkFrame):
         self._opt_cat = ctk.CTkOptionMenu(right, variable=self._cat_var, values=["Sin categoría"])
         self._opt_cat.pack(fill="x", padx=10)
 
-        ctk.CTkLabel(right, text="Opciones  (marca la correcta ●)",
+        ctk.CTkLabel(right, text="Opciones  (marca la correcta)",
                      font=FUENTE_PEQUEÑA, text_color=COLOR_TEXTO).pack(anchor="w", padx=10, pady=(14, 4))
 
         self._opciones_vars = []

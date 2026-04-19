@@ -86,5 +86,5 @@ class ResultadoFrame(ctk.CTkFrame):
         tree.pack(padx=16, pady=(0, 16), fill="both", expand=True)
 
         for pos, entrada in enumerate(self.top10, start=1):
-            record_txt = "★" if entrada.es_record_global else ""
+            record_txt = "Record" if entrada.es_record_global else ""
             tree.insert("", "end", values=(pos, entrada.jugador_id, entrada.nombre, entrada.puntaje, record_txt))

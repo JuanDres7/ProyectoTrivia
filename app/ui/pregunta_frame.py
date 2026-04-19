@@ -42,7 +42,7 @@ class PreguntaFrame(ctk.CTkFrame):
         ctk.CTkLabel(top, text=f"Pregunta {self.numero} de {self.total}",
                      font=FUENTE_NORMAL, text_color=COLOR_TEXTO).pack(side="left", padx=16, pady=12)
 
-        self._lbl_timer = ctk.CTkLabel(top, text=f"⏱ {self._tiempo_restante}s",
+        self._lbl_timer = ctk.CTkLabel(top, text=f"{self._tiempo_restante}s",
                                         font=FUENTE_SUBTITULO, text_color=COLOR_TEXTO)
         self._lbl_timer.pack(side="right", padx=16, pady=12)
 
@@ -99,7 +99,7 @@ class PreguntaFrame(ctk.CTkFrame):
     def _tick(self):
         if self._respondida:
             return
-        self._lbl_timer.configure(text=f"⏱ {self._tiempo_restante}s")
+        self._lbl_timer.configure(text=f"{self._tiempo_restante}s")
         if self._tiempo_restante <= 5:
             self._lbl_timer.configure(text_color=COLOR_ERROR)
         if self._tiempo_restante <= 0:

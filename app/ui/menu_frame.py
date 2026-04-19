@@ -31,7 +31,7 @@ class MenuFrame(ctk.CTkFrame):
         ).grid(row=2, column=0, pady=10)
 
         ctk.CTkButton(
-            self, text="🏆  Ver Ranking", width=220, font=FUENTE_NORMAL,
+            self, text="Ver Ranking", width=220, font=FUENTE_NORMAL,
             fg_color=COLOR_SECUNDARIO, text_color=COLOR_TEXTO,
             command=self.on_mostrar_ranking
         ).grid(row=3, column=0, pady=10)
