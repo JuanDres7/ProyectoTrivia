@@ -144,6 +144,18 @@ class ContenidoRepository:
         self.session.commit()
         return True
 
+    def eliminar_pregunta(self, pregunta_id: int) -> bool:
+        """Elimina permanentemente una pregunta y sus opciones de la base de datos. Devuelve False si no existe."""
+        pregunta = self.session.get(Pregunta, pregunta_id)
+        if pregunta is None:
+            return False
+        opciones = self.session.exec(select(Opcion).where(Opcion.pregunta_id == pregunta_id)).all()
+        for op in opciones:
+            self.session.delete(op)
+        self.session.delete(pregunta)
+        self.session.commit()
+        return True
+
     def activar_pregunta(self, pregunta_id: int) -> bool:
         """Reactiva una pregunta inactiva para que vuelva a aparecer en partidas. Devuelve False si no existe."""
         pregunta = self.session.get(Pregunta, pregunta_id)

@@ -90,8 +90,8 @@ class ContenidoService:
         return pregunta
 
     def eliminar_pregunta(self, pregunta_id: int) -> None:
-        """Desactiva una pregunta para que no aparezca en las partidas."""
-        if not self.repo.desactivar_pregunta(pregunta_id):
+        """Elimina permanentemente una pregunta y sus opciones de la base de datos."""
+        if not self.repo.eliminar_pregunta(pregunta_id):
             raise ValueError(f"No existe la pregunta con id {pregunta_id}.")
 
     def toggle_activa_pregunta(self, pregunta_id: int) -> bool:
