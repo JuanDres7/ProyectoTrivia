@@ -32,26 +32,25 @@ class RankingFrame(ctk.CTkFrame):
                         font=("Roboto", 11, "bold"))
         style.map("Treeview", background=[("selected", "#2b2b2b")])
 
-        cols = ("pos", "jugador_id", "nombre", "puntaje", "record")
+        cols = ("pos", "jugador_id", "nombre", "puntaje")
         tree = ttk.Treeview(self, columns=cols, show="headings", height=10, selectmode="none")
         tree.heading("pos",        text="#")
         tree.heading("jugador_id", text="Jugador ID")
         tree.heading("nombre",     text="Nombre")
         tree.heading("puntaje",    text="Puntaje")
-        tree.heading("record",     text="Récord")
         tree.column("pos",        width=50,  anchor="center")
         tree.column("jugador_id", width=90,  anchor="center")
         tree.column("nombre",     width=180, anchor="w")
         tree.column("puntaje",    width=90,  anchor="center")
-        tree.column("record",     width=70,  anchor="center")
+        tree.tag_configure("top1", foreground="#f1c40f")
         tree.grid(row=2, column=0, padx=40, pady=(0, 8), sticky="ew")
 
         if self.top10:
             for pos, entrada in enumerate(self.top10, start=1):
-                record_txt = "Record" if entrada.es_record_global else ""
-                tree.insert("", "end", values=(pos, entrada.jugador_id, entrada.nombre, entrada.puntaje, record_txt))
+                tag = ("top1",) if pos == 1 else ()
+                tree.insert("", "end", values=(pos, entrada.jugador_id, entrada.nombre, entrada.puntaje), tags=tag)
         else:
-            tree.insert("", "end", values=("—", "—", "Aún no hay partidas", "—", ""))
+            tree.insert("", "end", values=("—", "—", "Aún no hay partidas", "—"))
 
         # ── Volver ────────────────────────────────────────────────────
         ctk.CTkButton(self, text="Volver al menú", width=220, font=FUENTE_NORMAL,
