@@ -1,7 +1,7 @@
 import tkinter.ttk as ttk
-import tkinter.messagebox as messagebox
 import customtkinter as ctk
 from app.services.contenido_service import ContenidoService
+from app.ui.dialogo import mostrar_error, mostrar_aviso, confirmar
 from app.config.settings import (
     COLOR_PRIMARIO, COLOR_SECUNDARIO, COLOR_FONDO, COLOR_FONDO_FRAME,
     COLOR_TEXTO, COLOR_ERROR, COLOR_EXITO,
@@ -228,7 +228,7 @@ class AdminPreguntasFrame(ctk.CTkFrame):
             self._cargar_preguntas()
             self._actualizar_btn_toggle(nueva_activa)
         except ValueError as e:
-            messagebox.showerror("Error", str(e))
+            mostrar_error(self, str(e))
 
     def _limpiar_formulario(self):
         self._pregunta_id_seleccionada = None
@@ -266,13 +266,15 @@ class AdminPreguntasFrame(ctk.CTkFrame):
 
     def _eliminar(self):
         if self._pregunta_id_seleccionada is None:
-            messagebox.showwarning("Advertencia", "Selecciona una pregunta primero.")
+            mostrar_aviso(self, "Selecciona una pregunta primero.")
             return
-        if not messagebox.askyesno("Confirmar", "¿Eliminar la pregunta seleccionada?"):
-            return
-        try:
-            self.contenido_service.eliminar_pregunta(self._pregunta_id_seleccionada)
-            self._limpiar_formulario()
-            self._cargar_preguntas()
-        except ValueError as e:
-            messagebox.showerror("Error", str(e))
+
+        def ejecutar():
+            try:
+                self.contenido_service.eliminar_pregunta(self._pregunta_id_seleccionada)
+                self._limpiar_formulario()
+                self._cargar_preguntas()
+            except ValueError as e:
+                mostrar_error(self, str(e))
+
+        confirmar(self, "¿Eliminar la pregunta seleccionada?", ejecutar)

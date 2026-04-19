@@ -114,11 +114,11 @@ class App(ctk.CTk):
 
     def _iniciar_partida(self, nombre_jugador: str, nivel_id: int,
                          categoria_ids: list[int] | None = None):
-        from tkinter import messagebox
+        from app.ui.dialogo import mostrar_error
         try:
             sesion = self.partida_service.iniciar_sesion(nombre_jugador, nivel_id, categoria_ids)
         except ValueError as e:
-            messagebox.showerror("Error", str(e))
+            mostrar_error(self, str(e))
             return
         self.mostrar_pregunta(sesion)
 

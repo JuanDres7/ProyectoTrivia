@@ -1,5 +1,6 @@
 import customtkinter as ctk
 from app.database.models.contenido import Opcion, Pregunta
+from app.ui.dialogo import confirmar
 from app.config.settings import (
     COLOR_PRIMARIO, COLOR_FONDO, COLOR_FONDO_FRAME, COLOR_TEXTO, COLOR_ERROR, COLOR_EXITO,
     FUENTE_SUBTITULO, FUENTE_NORMAL, FUENTE_PEQUEÑA,
@@ -70,7 +71,7 @@ class PreguntaFrame(ctk.CTkFrame):
             opcion_id = opcion.id
             boton = ctk.CTkButton(
                 opciones_frame,
-                text=f"  {opcion.texto}",
+                text=f"  {opcion.texto}" ,
                 font=FUENTE_NORMAL,
                 fg_color=COLOR_FONDO_FRAME,
                 hover_color=COLOR_PRIMARIO,
@@ -145,34 +146,10 @@ class PreguntaFrame(ctk.CTkFrame):
         self.after(1500, lambda: self.on_respuesta(opcion_id))
 
     def _confirmar_cancelar(self):
-        dialogo = ctk.CTkToplevel(self)
-        dialogo.title("Cancelar partida")
-        dialogo.resizable(False, False)
-        dialogo.grab_set()
-        dialogo.update_idletasks()
-        ancho, alto = 340, 150
-        x = (dialogo.winfo_screenwidth() - ancho) // 2
-        y = (dialogo.winfo_screenheight() - alto) // 2
-        dialogo.geometry(f"{ancho}x{alto}+{x}+{y}")
-
-        ctk.CTkLabel(dialogo, text="¿Seguro que quieres abandonar la partida?",
-                     font=FUENTE_NORMAL, text_color=COLOR_TEXTO,
-                     wraplength=300).pack(pady=(24, 16))
-
-        botones_frame = ctk.CTkFrame(dialogo, fg_color="transparent")
-        botones_frame.pack()
-
-        def confirmar():
-            dialogo.destroy()
+        def ejecutar():
             self._respondida = True
             if self._timer_id:
                 self.after_cancel(self._timer_id)
             self.on_cancelar()
 
-        ctk.CTkButton(botones_frame, text="Sí, abandonar", width=140,
-                      fg_color=COLOR_ERROR, hover_color="#a93226",
-                      command=confirmar).pack(side="left", padx=8)
-
-        ctk.CTkButton(botones_frame, text="No, continuar", width=140,
-                      fg_color=COLOR_FONDO_FRAME,
-                      command=dialogo.destroy).pack(side="left", padx=8)
+        confirmar(self, "¿Seguro que quieres abandonar la partida?", ejecutar)

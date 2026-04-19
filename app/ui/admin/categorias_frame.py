@@ -1,7 +1,7 @@
 import tkinter.ttk as ttk
-import tkinter.messagebox as messagebox
 import customtkinter as ctk
 from app.services.contenido_service import ContenidoService
+from app.ui.dialogo import mostrar_error, mostrar_aviso, confirmar
 from app.config.settings import (
     COLOR_PRIMARIO, COLOR_FONDO, COLOR_FONDO_FRAME, COLOR_TEXTO,
     COLOR_ERROR, COLOR_EXITO, FUENTE_SUBTITULO, FUENTE_NORMAL, FUENTE_PEQUEÑA,
@@ -135,13 +135,15 @@ class AdminCategoriasFrame(ctk.CTkFrame):
 
     def _eliminar(self):
         if self._categoria_id_seleccionada is None:
-            messagebox.showwarning("Advertencia", "Selecciona una categoría primero.")
+            mostrar_aviso(self, "Selecciona una categoría primero.")
             return
-        if not messagebox.askyesno("Confirmar", "¿Eliminar la categoría seleccionada?"):
-            return
-        try:
-            self.contenido_service.eliminar_categoria(self._categoria_id_seleccionada)
-            self._limpiar()
-            self._cargar_categorias()
-        except ValueError as e:
-            messagebox.showerror("Error", str(e))
+
+        def ejecutar():
+            try:
+                self.contenido_service.eliminar_categoria(self._categoria_id_seleccionada)
+                self._limpiar()
+                self._cargar_categorias()
+            except ValueError as e:
+                mostrar_error(self, str(e))
+
+        confirmar(self, "¿Eliminar la categoría seleccionada?", ejecutar)
