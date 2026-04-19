@@ -5,6 +5,42 @@ from app.database.models.contenido import NivelDificultad, Opcion, Pregunta
 from app.database.models.partidas import Jugador, Partida, Ranking
 
 
+class SesionPartida:
+    """Encapsula el estado de una partida en curso."""
+
+    def __init__(self, jugador: Jugador, partida: Partida,
+                 preguntas: list[tuple[Pregunta, list[Opcion]]]):
+        self.jugador = jugador
+        self.partida = partida
+        self._preguntas = preguntas
+        self._indice = 0
+        self._correctas = 0
+
+    @property
+    def numero_actual(self) -> int:
+        return self._indice + 1
+
+    @property
+    def total_preguntas(self) -> int:
+        return len(self._preguntas)
+
+    @property
+    def correctas(self) -> int:
+        return self._correctas
+
+    def pregunta_actual(self) -> tuple[Pregunta, list[Opcion]]:
+        return self._preguntas[self._indice]
+
+    def hay_siguiente(self) -> bool:
+        return self._indice < len(self._preguntas) - 1
+
+    def avanzar(self) -> None:
+        self._indice += 1
+
+    def registrar_correcta(self) -> None:
+        self._correctas += 1
+
+
 class PartidaService:
 
     def __init__(self, partida_repository: PartidaRepository,
@@ -36,6 +72,34 @@ class PartidaService:
             preguntas_con_opciones.append((pregunta, opciones))
 
         return jugador, partida, preguntas_con_opciones
+
+    def iniciar_sesion(self, nombre_jugador: str, nivel_id: int,
+                       categoria_ids: list[int] | None = None) -> SesionPartida:
+        """Crea una sesión de juego lista para usar."""
+        jugador, partida, preguntas = self.iniciar_partida(nombre_jugador, nivel_id, categoria_ids)
+        return SesionPartida(jugador, partida, preguntas)
+
+    def responder_en_sesion(self, sesion: SesionPartida, opcion_elegida_id: int) -> bool:
+        """Registra la respuesta de la pregunta actual y actualiza la sesión."""
+        pregunta, _ = sesion.pregunta_actual()
+        es_correcta = self.responder_pregunta(sesion.partida.id, pregunta.id, opcion_elegida_id)
+        if es_correcta:
+            sesion.registrar_correcta()
+        return es_correcta
+
+    def finalizar_sesion(self, sesion: SesionPartida) -> dict:
+        """Cierra la sesión y devuelve el resultado final."""
+        return self.finalizar_partida(
+            sesion.partida.id,
+            sesion.jugador.id,
+            sesion.jugador.nombre,
+            sesion.partida.nivel_id,
+            sesion.correctas,
+        )
+
+    def cancelar_sesion(self, sesion: SesionPartida) -> None:
+        """Cancela la partida de la sesión."""
+        self.cancelar_partida(sesion.partida.id)
 
     # ------------------------------------------------------------------ #
     # Responder pregunta                                                   #
