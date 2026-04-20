@@ -65,13 +65,16 @@ class PreguntaFrame(ctk.CTkFrame):
         opciones_frame.columnconfigure(0, weight=1)
         opciones_frame.columnconfigure(1, weight=1)
 
+        # Ancho disponible por columna: (900px total - 80px padding lateral - 24px entre columnas) / 2
+        ancho_boton = (900 - 80 - 24) // 2
+
         self._botones = {}
         for i, opcion in enumerate(self.opciones):
             fila, columna = divmod(i, 2)
             opcion_id = opcion.id
             boton = ctk.CTkButton(
                 opciones_frame,
-                text=f"  {opcion.texto}" ,
+                text=f"  {opcion.texto}",
                 font=FUENTE_NORMAL,
                 fg_color=COLOR_FONDO_FRAME,
                 hover_color=COLOR_PRIMARIO,
@@ -80,6 +83,7 @@ class PreguntaFrame(ctk.CTkFrame):
                 anchor="w",
                 height=56,
                 corner_radius=8,
+                wraplength=ancho_boton - 24,  # margen interno del botón
                 command=lambda id_opcion_actual=opcion_id: self._responder(id_opcion_actual),
             )
             boton.grid(row=fila, column=columna, padx=6, pady=6, sticky="ew")
