@@ -119,7 +119,9 @@ class PreguntaFrame(ctk.CTkFrame):
             boton.configure(state="disabled", hover_color=boton.cget("fg_color"), text_color="white")
         self._botones[opcion_correcta.id].configure(fg_color=COLOR_EXITO, text_color="white")
 
-        self.after(1500, lambda: self.on_respuesta(-1))
+        # Se pasa el id de una opción incorrecta para que el servicio registre fallo
+        opcion_incorrecta = next((o for o in self.opciones if not o.es_correcta), self.opciones[0])
+        self.after(1500, lambda: self.on_respuesta(opcion_incorrecta.id))
 
     # ------------------------------------------------------------------
     # Acciones
