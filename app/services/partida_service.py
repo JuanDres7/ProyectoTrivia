@@ -97,7 +97,6 @@ class PartidaService:
         puntaje_final = respuestas_correctas  # 1 punto por respuesta correcta
 
         self.partida_repo.finalizar_partida(partida_id, respuestas_correctas, puntaje_final)
-        self.partida_repo.incrementar_total_partidas(jugador_id)
 
         record_anterior = self.partida_repo.obtener_record_global()
         entrada = self.partida_repo.registrar_en_ranking(jugador_id, nombre_jugador, nivel_id, puntaje_final)
@@ -125,9 +124,6 @@ class PartidaService:
 
     def obtener_top10(self) -> list[Ranking]:
         return self.partida_repo.obtener_top10()
-
-    def obtener_historial_jugador(self, jugador_id: int) -> list[Partida]:
-        return self.partida_repo.obtener_historial_jugador(jugador_id)
 
     def obtener_nivel(self, nivel_id: int) -> NivelDificultad | None:
         return self.contenido_repo.obtener_nivel_por_id(nivel_id)
