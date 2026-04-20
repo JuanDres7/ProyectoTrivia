@@ -23,6 +23,13 @@ class PartidaRepository:
             self.session.refresh(jugador)
         return jugador
 
+    def incrementar_total_partidas(self, jugador_id: int) -> None:
+        """Suma una partida al contador histórico del jugador."""
+        jugador = self.session.get(Jugador, jugador_id)
+        if jugador:
+            jugador.total_partidas += 1
+            self.session.commit()
+
     # ------------------------------------------------------------------ #
     # Partidas                                                             #
     # ------------------------------------------------------------------ #
@@ -110,6 +117,11 @@ class PartidaRepository:
     def obtener_top10(self) -> list[Ranking]:
         """Devuelve las 10 mejores entradas del ranking ordenadas por puntaje."""
         statement = select(Ranking).order_by(Ranking.puntaje.desc()).limit(10)  # type: ignore[attr-defined]
+        return list(self.session.exec(statement).all())
+
+    def obtener_historial_jugador(self, jugador_id: int) -> list[Partida]:
+        """Devuelve todas las partidas jugadas por un jugador específico."""
+        statement = select(Partida).where(Partida.jugador_id == jugador_id)
         return list(self.session.exec(statement).all())
 
 
