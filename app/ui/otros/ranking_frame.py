@@ -10,12 +10,14 @@ from app.config.settings import (
 class RankingFrame(ctk.CTkFrame):
 
     def __init__(self, master, top10: list[tuple[Ranking, str]], on_volver):
+        """Inicializa el frame con la lista de los 10 mejores puntajes."""
         super().__init__(master, fg_color=COLOR_FONDO_FRAME, corner_radius=16)
         self.top10 = top10
         self.on_volver = on_volver
         self._construir_ui()
 
     def _construir_ui(self):
+        """Construye la tabla con posición, ID, nombre y puntaje de cada jugador."""
         self.columnconfigure(0, weight=1)
 
         ctk.CTkLabel(self, text="Top 10 Jugadores", font=FUENTE_TITULO,

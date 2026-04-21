@@ -9,6 +9,7 @@ from app.config.settings import (
 class LoginFrame(ctk.CTkFrame):
 
     def __init__(self, master, auth_service: AuthService, on_login_exitoso, on_volver=None):
+        """Inicializa el frame de login con los callbacks de éxito y retroceso."""
         super().__init__(master, fg_color=COLOR_FONDO_FRAME, corner_radius=16)
         self.auth_service = auth_service
         self.on_login_exitoso = on_login_exitoso
@@ -16,6 +17,7 @@ class LoginFrame(ctk.CTkFrame):
         self._construir_ui()
 
     def _construir_ui(self):
+        """Construye el formulario de usuario y contraseña con su botón de ingreso."""
         self.columnconfigure(0, weight=1)
 
         ctk.CTkLabel(self, text="Panel de Administrador", font=FUENTE_TITULO, text_color=COLOR_TEXTO).grid(
@@ -48,6 +50,7 @@ class LoginFrame(ctk.CTkFrame):
             ).grid(row=6, column=0, pady=(0, 30))
 
     def _intentar_login(self):
+        """Valida los campos y delega la autenticación al servicio."""
         username = self.entry_usuario.get().strip()
         password = self.entry_password.get()
 

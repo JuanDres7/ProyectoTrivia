@@ -13,6 +13,7 @@ class AdminPreguntasFrame(ctk.CTkFrame):
 
     def __init__(self, master, contenido_service: ContenidoService,
                  on_categorias, on_niveles, on_volver):
+        """Inicializa el panel de preguntas y carga filtros y lista inicial."""
         super().__init__(master, fg_color=COLOR_FONDO, corner_radius=0,
                          width=900, height=600)
         self.contenido_service = contenido_service
@@ -33,6 +34,7 @@ class AdminPreguntasFrame(ctk.CTkFrame):
     # ------------------------------------------------------------------
 
     def _construir_ui(self):
+        """Construye la barra superior, el listado con filtro y el formulario de pregunta."""
         self.pack_propagate(False)
 
         # Top bar
@@ -150,6 +152,7 @@ class AdminPreguntasFrame(ctk.CTkFrame):
     # ------------------------------------------------------------------
 
     def _cargar_filtros(self):
+        """Rellena los desplegables de nivel y categoría con los datos del servicio."""
         niveles = self.contenido_service.listar_niveles()
         self._niveles_map = {n.nombre: n.id for n in niveles}
         self._filtro_nivel.configure(values=["Todos"] + list(self._niveles_map.keys()))
@@ -165,6 +168,7 @@ class AdminPreguntasFrame(ctk.CTkFrame):
         self._cat_var.set("Sin categoría")
 
     def _cargar_preguntas(self):
+        """Recarga la tabla aplicando el filtro de nivel activo."""
         filtro = self._filtro_nivel.get()
         nivel_id = self._niveles_map.get(filtro) if filtro != "Todos" else None
         preguntas = self.contenido_service.listar_preguntas(nivel_id, solo_activas=False)
@@ -186,6 +190,7 @@ class AdminPreguntasFrame(ctk.CTkFrame):
     # ------------------------------------------------------------------
 
     def _on_seleccionar(self, _event=None):
+        """Carga la pregunta seleccionada en el formulario de edición."""
         sel = self._tree.selection()
         if not sel:
             return
@@ -215,12 +220,14 @@ class AdminPreguntasFrame(ctk.CTkFrame):
         self._actualizar_btn_toggle(pregunta.activa)
 
     def _actualizar_btn_toggle(self, activa: bool):
+        """Actualiza el texto y color del botón de activar/desactivar según el estado."""
         if activa:
             self._btn_toggle.configure(text="Desactivar", fg_color=COLOR_SECUNDARIO, state="normal")
         else:
             self._btn_toggle.configure(text="Activar", fg_color=COLOR_EXITO, text_color="#000000", state="normal")
 
     def _toggle_activa(self):
+        """Activa o desactiva la pregunta seleccionada y refresca la tabla."""
         if self._pregunta_id_seleccionada is None:
             return
         try:
@@ -231,6 +238,7 @@ class AdminPreguntasFrame(ctk.CTkFrame):
             mostrar_error(self, str(e))
 
     def _limpiar_formulario(self):
+        """Vacía todos los campos del formulario y deselecciona la tabla."""
         self._pregunta_id_seleccionada = None
         self._entry_enunciado.delete("1.0", "end")
         for var in self._opciones_vars:
@@ -241,6 +249,7 @@ class AdminPreguntasFrame(ctk.CTkFrame):
         self._tree.selection_remove(self._tree.selection())
 
     def _guardar(self):
+        """Crea o actualiza la pregunta con sus opciones según si hay una seleccionada."""
         enunciado = self._entry_enunciado.get("1.0", "end").strip()
         nivel_id = self._niveles_map.get(self._nivel_var.get())
         cat_id = self._categorias_map.get(self._cat_var.get())
@@ -265,6 +274,7 @@ class AdminPreguntasFrame(ctk.CTkFrame):
             self._lbl_form_error.configure(text=str(e), text_color=COLOR_ERROR)
 
     def _eliminar(self):
+        """Solicita confirmación y elimina la pregunta seleccionada."""
         if self._pregunta_id_seleccionada is None:
             mostrar_aviso(self, "Selecciona una pregunta primero.")
             return

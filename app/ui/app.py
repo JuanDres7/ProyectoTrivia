@@ -14,6 +14,7 @@ class App(ctk.CTk):
     def __init__(self, auth_service: AuthService,
                  contenido_service: ContenidoService,
                  partida_service: PartidaService):
+        """Inicializa la ventana principal e inyecta los servicios necesarios."""
         super().__init__()
         self.auth_service = auth_service
         self.contenido_service = contenido_service
@@ -31,6 +32,7 @@ class App(ctk.CTk):
     # ------------------------------------------------------------------
 
     def _cambiar_frame(self, nuevo_frame: ctk.CTkFrame):
+        """Destruye el frame visible actual y centra el nuevo en pantalla."""
         if self._frame_actual is not None:
             self._frame_actual.destroy()
         self._frame_actual = nuevo_frame
@@ -39,6 +41,7 @@ class App(ctk.CTk):
     # ---- Auth --------------------------------------------------------
 
     def mostrar_login_admin(self):
+        """Navega al formulario de autenticación del administrador."""
         from app.ui.otros.login_frame import LoginFrame
         self._cambiar_frame(LoginFrame(
             master=self,
@@ -48,6 +51,7 @@ class App(ctk.CTk):
         ))
 
     def mostrar_menu(self):
+        """Navega al menú principal de la aplicación."""
         from app.ui.otros.menu_frame import MenuFrame
         self._cambiar_frame(MenuFrame(
             master=self,
@@ -57,6 +61,7 @@ class App(ctk.CTk):
         ))
 
     def mostrar_ranking(self):
+        """Navega a la pantalla con el top 10 de jugadores."""
         from app.ui.otros.ranking_frame import RankingFrame
         self._cambiar_frame(RankingFrame(
             master=self,
@@ -67,6 +72,7 @@ class App(ctk.CTk):
     # ---- Admin -------------------------------------------------------
 
     def mostrar_admin_preguntas(self):
+        """Navega al panel de administración de preguntas."""
         from app.ui.admin.preguntas_frame import AdminPreguntasFrame
         self._cambiar_frame(AdminPreguntasFrame(
             master=self,
@@ -77,6 +83,7 @@ class App(ctk.CTk):
         ))
 
     def mostrar_admin_categorias(self):
+        """Navega al panel de administración de categorías."""
         from app.ui.admin.categorias_frame import AdminCategoriasFrame
         self._cambiar_frame(AdminCategoriasFrame(
             master=self,
@@ -85,6 +92,7 @@ class App(ctk.CTk):
         ))
 
     def mostrar_admin_niveles(self):
+        """Navega a la pantalla de consulta de niveles de dificultad."""
         from app.ui.admin.niveles_frame import AdminNivelesFrame
         self._cambiar_frame(AdminNivelesFrame(
             master=self,
@@ -95,6 +103,7 @@ class App(ctk.CTk):
     # ---- Juego -------------------------------------------------------
 
     def mostrar_ingreso_jugador(self):
+        """Navega al formulario donde el jugador ingresa su nombre."""
         from app.ui.juego.ingreso_jugador_frame import IngresoJugadorFrame
         self._cambiar_frame(IngresoJugadorFrame(
             master=self,
@@ -103,6 +112,7 @@ class App(ctk.CTk):
         ))
 
     def mostrar_seleccion_nivel(self, nombre_jugador: str):
+        """Navega a la pantalla de selección de nivel y categorías."""
         from app.ui.juego.seleccion_nivel_frame import SeleccionNivelFrame
         self._cambiar_frame(SeleccionNivelFrame(
             master=self,
@@ -114,6 +124,7 @@ class App(ctk.CTk):
 
     def _iniciar_partida(self, nombre_jugador: str, nivel_id: int,
                          categoria_ids: list[int] | None = None):
+        """Inicia una nueva sesión de partida y navega a la primera pregunta."""
         from app.ui.otros.dialogo import mostrar_error
         try:
             sesion = self.partida_service.iniciar_sesion(nombre_jugador, nivel_id, categoria_ids)
@@ -123,9 +134,11 @@ class App(ctk.CTk):
         self.mostrar_pregunta(sesion)
 
     def mostrar_pregunta(self, sesion):
+        """Muestra la pregunta actual de la sesión y gestiona la respuesta y el avance."""
         from app.ui.juego.pregunta_frame import PreguntaFrame
 
         def on_respuesta(opcion_id: int):
+            """Registra la respuesta y avanza a la siguiente pregunta o al resultado."""
             self.partida_service.responder_en_sesion(sesion, opcion_id)
             if sesion.hay_siguiente():
                 sesion.avanzar()
@@ -135,6 +148,7 @@ class App(ctk.CTk):
                 self.mostrar_resultado(nombre_jugador=sesion.jugador.nombre, resultado=resultado)
 
         def on_cancelar():
+            """Cancela la partida activa y vuelve al menú principal."""
             self.partida_service.cancelar_sesion(sesion)
             self.mostrar_menu()
 
@@ -153,6 +167,7 @@ class App(ctk.CTk):
         ))
 
     def mostrar_resultado(self, nombre_jugador: str, resultado: dict):
+        """Navega a la pantalla de resultado con el puntaje y el top 10 actualizado."""
         from app.ui.juego.resultado_frame import ResultadoFrame
         self._cambiar_frame(ResultadoFrame(
             master=self,

@@ -10,6 +10,7 @@ from app.config.settings import (
 class AdminNivelesFrame(ctk.CTkFrame):
 
     def __init__(self, master, contenido_service: ContenidoService, on_volver):
+        """Inicializa la pantalla de niveles y carga la tabla."""
         super().__init__(master, fg_color=COLOR_FONDO, corner_radius=0, width=900, height=600)
         self.contenido_service = contenido_service
         self.on_volver = on_volver
@@ -17,6 +18,7 @@ class AdminNivelesFrame(ctk.CTkFrame):
         self._cargar_niveles()
 
     def _construir_ui(self):
+        """Construye la barra superior y la tabla de solo lectura con los niveles."""
         self.pack_propagate(False)
 
         # Top bar
@@ -55,6 +57,7 @@ class AdminNivelesFrame(ctk.CTkFrame):
         self._tree.pack(padx=10, pady=10)
 
     def _cargar_niveles(self):
+        """Rellena la tabla con los niveles obtenidos del servicio."""
         niveles = self.contenido_service.listar_niveles()
         for n in niveles:
             self._tree.insert("", "end", values=(n.id, n.nombre, n.num_preguntas, n.tiempo_limite_seg))

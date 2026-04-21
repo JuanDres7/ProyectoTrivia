@@ -12,6 +12,7 @@ class PreguntaFrame(ctk.CTkFrame):
     def __init__(self, master, pregunta: Pregunta, opciones: list[Opcion],
                  numero: int, total: int, tiempo_limite: int,
                  on_respuesta, on_cancelar):
+        """Inicializa el frame con la pregunta actual, el contador de tiempo y los botones de opción."""
         super().__init__(master, fg_color=COLOR_FONDO, corner_radius=0, width=900, height=600)
         self.pregunta = pregunta
         self.opciones = opciones
@@ -33,6 +34,7 @@ class PreguntaFrame(ctk.CTkFrame):
     # ------------------------------------------------------------------
 
     def _construir_ui(self):
+        """Construye la barra de progreso, el enunciado, las opciones y el botón de cancelar."""
         self.pack_propagate(False)
 
         # Top bar: progreso + timer
@@ -95,9 +97,11 @@ class PreguntaFrame(ctk.CTkFrame):
     # ------------------------------------------------------------------
 
     def _iniciar_timer(self):
+        """Arranca el contador regresivo llamando al primer tick."""
         self._tick()
 
     def _tick(self):
+        """Decrementa el tiempo cada segundo y dispara _tiempo_agotado al llegar a cero."""
         if self._respondida:
             return
         self._lbl_timer.configure(text=f"{self._tiempo_restante}s")
@@ -110,6 +114,7 @@ class PreguntaFrame(ctk.CTkFrame):
         self._timer_id = self.after(1000, self._tick)
 
     def _tiempo_agotado(self):
+        """Marca la opción correcta, bloquea los botones y avanza como respuesta incorrecta."""
         if self._respondida:
             return
         self._respondida = True
@@ -128,6 +133,7 @@ class PreguntaFrame(ctk.CTkFrame):
     # ------------------------------------------------------------------
 
     def _responder(self, opcion_id: int):
+        """Registra la respuesta del jugador, colorea acierto/fallo y avanza tras 1,5 s."""
         if self._respondida:
             return
         self._respondida = True
@@ -148,6 +154,7 @@ class PreguntaFrame(ctk.CTkFrame):
         self.after(1500, lambda: self.on_respuesta(opcion_id))
 
     def _confirmar_cancelar(self):
+        """Muestra el diálogo de confirmación antes de abandonar la partida."""
         def ejecutar():
             self._respondida = True
             if self._timer_id:

@@ -6,6 +6,7 @@ from app.config.settings import (
 
 
 def _base(master, titulo: str, mensaje: str, ancho: int = 360, alto: int = 160) -> ctk.CTkToplevel:
+    """Crea y centra en pantalla una ventana modal con título y mensaje."""
     dialogo = ctk.CTkToplevel(master)
     dialogo.title(titulo)
     dialogo.resizable(False, False)
@@ -20,6 +21,7 @@ def _base(master, titulo: str, mensaje: str, ancho: int = 360, alto: int = 160) 
 
 
 def mostrar_error(master, mensaje: str) -> None:
+    """Muestra un diálogo modal de error con botón Aceptar."""
     dialogo = _base(master, "Error", mensaje)
     ctk.CTkButton(dialogo, text="Aceptar", width=120, font=FUENTE_NORMAL,
                   fg_color=COLOR_ERROR, hover_color="#a93226",
@@ -27,6 +29,7 @@ def mostrar_error(master, mensaje: str) -> None:
 
 
 def mostrar_aviso(master, mensaje: str) -> None:
+    """Muestra un diálogo modal informativo con botón Aceptar."""
     dialogo = _base(master, "Aviso", mensaje)
     ctk.CTkButton(dialogo, text="Aceptar", width=120, font=FUENTE_NORMAL,
                   fg_color=COLOR_PRIMARIO,
@@ -34,6 +37,7 @@ def mostrar_aviso(master, mensaje: str) -> None:
 
 
 def confirmar(master, mensaje: str, on_si) -> None:
+    """Muestra un diálogo de confirmación; llama a on_si solo si el usuario acepta."""
     dialogo = _base(master, "Sistema de Trivia", mensaje, ancho=360, alto=160)
     fila = ctk.CTkFrame(dialogo, fg_color="transparent")
     fila.pack()

@@ -12,6 +12,7 @@ class SeleccionNivelFrame(ctk.CTkFrame):
 
     def __init__(self, master, contenido_service: ContenidoService,
                  nombre_jugador: str, on_nivel_elegido, on_volver):
+        """Inicializa la pantalla de configuración de partida con niveles y categorías."""
         super().__init__(master, fg_color=COLOR_FONDO_FRAME, corner_radius=16)
         self.contenido_service = contenido_service
         self.nombre_jugador = nombre_jugador
@@ -30,6 +31,7 @@ class SeleccionNivelFrame(ctk.CTkFrame):
     # ------------------------------------------------------------------
 
     def _construir_ui(self):
+        """Construye la cabecera, los dos paneles (niveles y categorías) y los botones de acción."""
         self.columnconfigure(0, weight=1)
 
         # ── Cabecera ──────────────────────────────────────────────────
@@ -81,6 +83,7 @@ class SeleccionNivelFrame(ctk.CTkFrame):
     # ------------------------------------------------------------------
 
     def _construir_panel_niveles(self, parent: ctk.CTkFrame):
+        """Renderiza una tarjeta seleccionable por cada nivel disponible."""
         parent.columnconfigure(0, weight=1)
 
         ctk.CTkLabel(parent, text="Nivel de dificultad",
@@ -112,12 +115,14 @@ class SeleccionNivelFrame(ctk.CTkFrame):
             self._bind_card(card, nivel_id, color)
 
     def _bind_card(self, card: ctk.CTkFrame, nivel_id: int, color: str):
+        """Vincula el evento de clic a la tarjeta y a todos sus widgets hijos."""
         handler = lambda e, nid=nivel_id, c=card, col=color: self._seleccionar_nivel(nid, c, col)
         card.bind("<Button-1>", handler)
         for child in card.winfo_children():
             child.bind("<Button-1>", handler)
 
     def _seleccionar_nivel(self, nivel_id: int, card: ctk.CTkFrame, color: str):
+        """Resalta la tarjeta elegida, deselecciona las demás y habilita el botón jugar."""
         for _, (c, _) in self._nivel_cards.items():
             c.configure(fg_color="#333333", border_color="#444444")
         card.configure(fg_color="#2a2a3a", border_color=color)
@@ -129,6 +134,7 @@ class SeleccionNivelFrame(ctk.CTkFrame):
     # ------------------------------------------------------------------
 
     def _construir_panel_categorias(self, parent: ctk.CTkFrame):
+        """Renderiza un checkbox por cada categoría disponible más la opción de seleccionar todas."""
         parent.columnconfigure(0, weight=1)
 
         ctk.CTkLabel(parent, text="Categorías",
@@ -159,12 +165,14 @@ class SeleccionNivelFrame(ctk.CTkFrame):
             ).grid(row=3 + i, column=0, pady=4, sticky="w")
 
     def _toggle_todas(self):
+        """Marca o desmarca todas las categorías en bloque."""
         val = self._var_todas.get()
         for var in self._categoria_vars.values():
             var.set(val)
         self._actualizar_boton_jugar()
 
     def _on_categoria_cambio(self):
+        """Sincroniza el checkbox 'Seleccionar todas' según el estado individual de cada categoría."""
         todas = all(v.get() for v in self._categoria_vars.values())
         self._var_todas.set(todas)
         self._actualizar_boton_jugar()
@@ -174,11 +182,13 @@ class SeleccionNivelFrame(ctk.CTkFrame):
     # ------------------------------------------------------------------
 
     def _actualizar_boton_jugar(self):
+        """Habilita el botón Jugar solo si hay nivel elegido y al menos una categoría activa."""
         nivel_ok = self._nivel_seleccionado is not None
         cats_ok = any(v.get() for v in self._categoria_vars.values())
         self._btn_jugar.configure(state="normal" if (nivel_ok and cats_ok) else "disabled")
 
     def _jugar(self):
+        """Recopila nivel y categorías seleccionadas y dispara el callback de inicio de partida."""
         todas = all(v.get() for v in self._categoria_vars.values())
         categoria_ids = None if todas else [
             cid for cid, var in self._categoria_vars.items() if var.get()

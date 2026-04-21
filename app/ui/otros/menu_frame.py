@@ -8,6 +8,7 @@ from app.config.settings import (
 class MenuFrame(ctk.CTkFrame):
 
     def __init__(self, master, on_gestionar_preguntas, on_iniciar_juego, on_mostrar_ranking):
+        """Inicializa el menú principal con los tres callbacks de navegación."""
         super().__init__(master, fg_color=COLOR_FONDO_FRAME, corner_radius=16, width=400, height=300)
         self.grid_propagate(False)
         self.on_gestionar_preguntas = on_gestionar_preguntas
@@ -16,6 +17,7 @@ class MenuFrame(ctk.CTkFrame):
         self._construir_ui()
 
     def _construir_ui(self):
+        """Construye los tres botones de acceso: jugar, ranking y gestionar preguntas."""
         self.columnconfigure(0, weight=1)
 
         ctk.CTkLabel(self, text="Sistema de Trivia", font=FUENTE_TITULO, text_color=COLOR_TEXTO).grid(

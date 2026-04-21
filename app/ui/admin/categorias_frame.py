@@ -11,6 +11,7 @@ from app.config.settings import (
 class AdminCategoriasFrame(ctk.CTkFrame):
 
     def __init__(self, master, contenido_service: ContenidoService, on_volver):
+        """Inicializa el frame de gestión de categorías y carga el listado inicial."""
         super().__init__(master, fg_color=COLOR_FONDO, corner_radius=0, width=900, height=600)
         self.contenido_service = contenido_service
         self.on_volver = on_volver
@@ -19,6 +20,7 @@ class AdminCategoriasFrame(ctk.CTkFrame):
         self._cargar_categorias()
 
     def _construir_ui(self):
+        """Construye la barra superior, la tabla de categorías y el formulario de edición."""
         self.pack_propagate(False)
 
         # Top bar
@@ -88,6 +90,7 @@ class AdminCategoriasFrame(ctk.CTkFrame):
                       fg_color=COLOR_ERROR, command=self._eliminar).pack(side="left", padx=6)
 
     def _cargar_categorias(self):
+        """Recarga la tabla con las categorías actuales desde el servicio."""
         categorias = self.contenido_service.listar_categorias()
         for row in self._tree.get_children():
             self._tree.delete(row)
@@ -96,6 +99,7 @@ class AdminCategoriasFrame(ctk.CTkFrame):
             self._tree.insert("", "end", iid=str(c.id), values=(c.id, c.nombre, desc))
 
     def _on_seleccionar(self, _event=None):
+        """Carga los datos de la categoría seleccionada en el formulario."""
         sel = self._tree.selection()
         if not sel:
             return
@@ -111,6 +115,7 @@ class AdminCategoriasFrame(ctk.CTkFrame):
         self._lbl_error.configure(text="")
 
     def _limpiar(self):
+        """Resetea el formulario y deselecciona la fila activa en la tabla."""
         self._categoria_id_seleccionada = None
         self._entry_nombre.delete(0, "end")
         self._entry_desc.delete("1.0", "end")
@@ -118,6 +123,7 @@ class AdminCategoriasFrame(ctk.CTkFrame):
         self._tree.selection_remove(self._tree.selection())
 
     def _guardar(self):
+        """Crea o actualiza la categoría según si hay una seleccionada."""
         nombre = self._entry_nombre.get().strip()
         desc = self._entry_desc.get("1.0", "end").strip() or None
         try:
@@ -134,6 +140,7 @@ class AdminCategoriasFrame(ctk.CTkFrame):
             self._lbl_error.configure(text=str(e), text_color=COLOR_ERROR)
 
     def _eliminar(self):
+        """Solicita confirmación y desactiva la categoría seleccionada."""
         if self._categoria_id_seleccionada is None:
             mostrar_aviso(self, "Selecciona una categoría primero.")
             return

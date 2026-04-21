@@ -8,12 +8,14 @@ from app.config.settings import (
 class IngresoJugadorFrame(ctk.CTkFrame):
 
     def __init__(self, master, on_continuar, on_volver):
+        """Inicializa el formulario de ingreso del nombre del jugador."""
         super().__init__(master, fg_color=COLOR_FONDO_FRAME, corner_radius=16)
         self.on_continuar = on_continuar
         self.on_volver = on_volver
         self._construir_ui()
 
     def _construir_ui(self):
+        """Construye el campo de nombre con validación y botones de continuar/volver."""
         self.columnconfigure(0, weight=1)
 
         ctk.CTkLabel(self, text="¡Bienvenido!", font=FUENTE_TITULO,
@@ -38,6 +40,7 @@ class IngresoJugadorFrame(ctk.CTkFrame):
                       command=self.on_volver).grid(row=5, column=0, pady=(0, 30))
 
     def _continuar(self):
+        """Valida el nombre ingresado y dispara el callback de continuar."""
         nombre = self._entry_nombre.get().strip()
         if not nombre:
             self._lbl_error.configure(text="Por favor ingresa tu nombre.")
