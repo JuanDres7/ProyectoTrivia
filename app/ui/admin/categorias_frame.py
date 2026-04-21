@@ -1,7 +1,7 @@
 import tkinter.ttk as ttk
 import customtkinter as ctk
 from app.services.contenido_service import ContenidoService
-from app.ui.dialogo import mostrar_error, mostrar_aviso, confirmar
+from app.ui.otros.dialogo import mostrar_error, mostrar_aviso, confirmar
 from app.config.settings import (
     COLOR_PRIMARIO, COLOR_FONDO, COLOR_FONDO_FRAME, COLOR_TEXTO,
     COLOR_ERROR, COLOR_EXITO, FUENTE_SUBTITULO, FUENTE_NORMAL, FUENTE_PEQUEÑA,

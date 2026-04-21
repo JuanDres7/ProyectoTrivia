@@ -39,7 +39,7 @@ class App(ctk.CTk):
     # ---- Auth --------------------------------------------------------
 
     def mostrar_login_admin(self):
-        from app.ui.login_frame import LoginFrame
+        from app.ui.otros.login_frame import LoginFrame
         self._cambiar_frame(LoginFrame(
             master=self,
             auth_service=self.auth_service,
@@ -48,7 +48,7 @@ class App(ctk.CTk):
         ))
 
     def mostrar_menu(self):
-        from app.ui.menu_frame import MenuFrame
+        from app.ui.otros.menu_frame import MenuFrame
         self._cambiar_frame(MenuFrame(
             master=self,
             on_gestionar_preguntas=self.mostrar_login_admin,
@@ -57,7 +57,7 @@ class App(ctk.CTk):
         ))
 
     def mostrar_ranking(self):
-        from app.ui.ranking_frame import RankingFrame
+        from app.ui.otros.ranking_frame import RankingFrame
         self._cambiar_frame(RankingFrame(
             master=self,
             top10=self.partida_service.obtener_top10(),
@@ -114,7 +114,7 @@ class App(ctk.CTk):
 
     def _iniciar_partida(self, nombre_jugador: str, nivel_id: int,
                          categoria_ids: list[int] | None = None):
-        from app.ui.dialogo import mostrar_error
+        from app.ui.otros.dialogo import mostrar_error
         try:
             sesion = self.partida_service.iniciar_sesion(nombre_jugador, nivel_id, categoria_ids)
         except ValueError as e:

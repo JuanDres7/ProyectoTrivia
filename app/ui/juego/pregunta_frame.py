@@ -1,6 +1,6 @@
 import customtkinter as ctk
 from app.database.models.contenido import Opcion, Pregunta
-from app.ui.dialogo import confirmar
+from app.ui.otros.dialogo import confirmar
 from app.config.settings import (
     COLOR_PRIMARIO, COLOR_FONDO, COLOR_FONDO_FRAME, COLOR_TEXTO, COLOR_ERROR, COLOR_EXITO,
     FUENTE_SUBTITULO, FUENTE_NORMAL, FUENTE_PEQUEÑA,
