@@ -73,7 +73,7 @@ class PreguntaFrame(ctk.CTkFrame):
             opcion_id = opcion.id
             boton = ctk.CTkButton(
                 opciones_frame,
-                text=f"  {opcion.texto}",
+                text=f"  {opcion.texto[:70]}",
                 font=FUENTE_NORMAL,
                 fg_color=COLOR_FONDO_FRAME,
                 hover_color=COLOR_PRIMARIO,

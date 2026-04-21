@@ -130,6 +130,7 @@ class AdminPreguntasFrame(ctk.CTkFrame):
 
         self._opciones_vars = []
         letras = ["A", "B", "C", "D"]
+        vcmd = (self.register(lambda P: len(P) <= 70), "%P")
         for i, letra in enumerate(letras):
             row = ctk.CTkFrame(right, fg_color="transparent")
             row.pack(fill="x", padx=10, pady=3)
@@ -137,7 +138,8 @@ class AdminPreguntasFrame(ctk.CTkFrame):
                                value=i, width=40).pack(side="left")
             var = ctk.StringVar()
             ctk.CTkEntry(row, textvariable=var, placeholder_text=f"Opción {letra}",
-                         font=FUENTE_NORMAL).pack(side="left", fill="x", expand=True, padx=(6, 0))
+                         font=FUENTE_NORMAL, validate="key",
+                         validatecommand=vcmd).pack(side="left", fill="x", expand=True, padx=(6, 0))
             self._opciones_vars.append(var)
 
         self._lbl_form_error = ctk.CTkLabel(right, text="", font=FUENTE_PEQUEÑA,

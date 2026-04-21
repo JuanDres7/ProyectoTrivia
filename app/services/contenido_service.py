@@ -119,6 +119,8 @@ class ContenidoService:
         for op in opciones:
             if not op.get("texto", "").strip():
                 raise ValueError(f"La pregunta no puede contener opciones vacias.")
+            if len(op.get("texto", "")) > 70:
+                raise ValueError("Las opciones no pueden superar los 70 caracteres.")
         correctas = sum(1 for op in opciones if op.get("es_correcta"))
         if correctas != 1:
             raise ValueError("Exactamente una opción debe ser la correcta.")

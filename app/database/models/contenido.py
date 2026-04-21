@@ -34,5 +34,5 @@ class Opcion(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     pregunta_id: int = Field(foreign_key="preguntas.id")
     letra: str = Field(max_length=1)
-    texto: str = Field(max_length=255)
+    texto: str = Field(max_length=70)
     es_correcta: bool = Field(default=False)
