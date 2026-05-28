@@ -15,7 +15,7 @@ class AdminNivelesFrame(ctk.CTkFrame):
 
     def __init__(self, master, contenido_service: ContenidoService, on_volver):
         """Inicializa la pantalla de niveles y carga la tabla."""
-        super().__init__(master, fg_color=COLOR_FONDO, corner_radius=0, width=900, height=600)
+        super().__init__(master, fg_color=COLOR_FONDO, corner_radius=0)
         self.contenido_service = contenido_service
         self.on_volver = on_volver
         self._construir_ui()
@@ -23,7 +23,6 @@ class AdminNivelesFrame(ctk.CTkFrame):
 
     def _construir_ui(self):
         """Construye la barra superior y la tabla estática con los niveles de dificultad."""
-        self.pack_propagate(False)
 
         # ── Top bar ───────────────────────────────────────────────────
         top = ctk.CTkFrame(self, fg_color=COLOR_FONDO_FRAME, height=54, corner_radius=0)

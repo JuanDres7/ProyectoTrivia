@@ -20,6 +20,7 @@ class IngresoJugadorFrame(ctk.CTkFrame):
         )
         self.on_continuar = on_continuar
         self.on_volver = on_volver
+        self._card_frame = True
         self._construir_ui()
 
     def _construir_ui(self):

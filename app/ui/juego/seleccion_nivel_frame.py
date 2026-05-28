@@ -6,7 +6,6 @@ from app.config.settings import (
     COLOR_EXITO, COLOR_SECUNDARIO,
     COLOR_TEXTO, COLOR_TEXTO_SEC,
     FUENTE_TITULO, FUENTE_SUBTITULO, FUENTE_NORMAL, FUENTE_PEQUEÑA,
-    ANCHO_VENTANA, ALTO_VENTANA,
 )
 
 # Colores neón para los tres niveles: verde → cian → magenta
@@ -20,14 +19,7 @@ class SeleccionNivelFrame(ctk.CTkFrame):
     def __init__(self, master, contenido_service: ContenidoService,
                  nombre_jugador: str, on_nivel_elegido, on_volver):
         """Inicializa la pantalla de configuración de partida con niveles y categorías."""
-        super().__init__(
-            master,
-            fg_color=COLOR_FONDO,
-            corner_radius=0,
-            width=ANCHO_VENTANA,
-            height=ALTO_VENTANA,
-        )
-        self.grid_propagate(False)
+        super().__init__(master, fg_color=COLOR_FONDO, corner_radius=0)
         self.contenido_service = contenido_service
         self.nombre_jugador = nombre_jugador
         self.on_nivel_elegido = on_nivel_elegido
@@ -165,12 +157,31 @@ class SeleccionNivelFrame(ctk.CTkFrame):
             self._bind_card(card, nivel_id, color, fondo_sel)
 
     def _bind_card(self, card: ctk.CTkFrame, nivel_id: int, color: str, fondo_sel: str):
-        """Vincula el evento de clic a la tarjeta y a todos sus widgets hijos."""
-        handler = lambda e, nid=nivel_id, c=card, col=color, fs=fondo_sel: \
+        """Vincula clics y hover glow a la tarjeta de nivel y a todos sus hijos."""
+        click_handler = lambda e, nid=nivel_id, c=card, col=color, fs=fondo_sel: \
             self._seleccionar_nivel(nid, c, col, fs)
-        card.bind("<Button-1>", handler)
+
+        def enter_handler(e, c=card, col=color, nid=nivel_id):
+            if self._nivel_seleccionado != nid:
+                c.configure(border_color=col)
+
+        def leave_handler(e, c=card, nid=nivel_id):
+            if self._nivel_seleccionado != nid:
+                try:
+                    cx, cy = c.winfo_rootx(), c.winfo_rooty()
+                    mx, my = c.winfo_pointerxy()
+                    if not (cx <= mx < cx + c.winfo_width() and cy <= my < cy + c.winfo_height()):
+                        c.configure(border_color=COLOR_BORDE)
+                except Exception:
+                    pass
+
+        card.bind("<Button-1>", click_handler)
+        card.bind("<Enter>", enter_handler)
+        card.bind("<Leave>", leave_handler)
         for child in card.winfo_children():
-            child.bind("<Button-1>", handler)
+            child.bind("<Button-1>", click_handler)
+            child.bind("<Enter>", enter_handler)
+            child.bind("<Leave>", leave_handler)
 
     def _seleccionar_nivel(self, nivel_id: int, card: ctk.CTkFrame, color: str, fondo_sel: str):
         """Resalta la tarjeta elegida, deselecciona las demás y habilita el botón jugar."""

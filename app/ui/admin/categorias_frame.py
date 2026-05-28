@@ -14,7 +14,7 @@ class AdminCategoriasFrame(ctk.CTkFrame):
 
     def __init__(self, master, contenido_service: ContenidoService, on_volver):
         """Inicializa el frame de gestión de categorías y carga el listado inicial."""
-        super().__init__(master, fg_color=COLOR_FONDO, corner_radius=0, width=900, height=600)
+        super().__init__(master, fg_color=COLOR_FONDO, corner_radius=0)
         self.contenido_service = contenido_service
         self.on_volver = on_volver
         self._categoria_id_seleccionada: int | None = None
@@ -28,7 +28,6 @@ class AdminCategoriasFrame(ctk.CTkFrame):
 
     def _construir_ui(self):
         """Construye la barra superior, la tabla de categorías y el formulario de edición."""
-        self.pack_propagate(False)
 
         # ── Top bar ───────────────────────────────────────────────────
         top = ctk.CTkFrame(self, fg_color=COLOR_FONDO_FRAME, height=54, corner_radius=0)

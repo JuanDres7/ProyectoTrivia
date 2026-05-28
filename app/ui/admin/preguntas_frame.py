@@ -16,7 +16,7 @@ class AdminPreguntasFrame(ctk.CTkFrame):
     def __init__(self, master, contenido_service: ContenidoService,
                  on_categorias, on_niveles, on_volver):
         """Inicializa el panel de preguntas y carga filtros y lista inicial."""
-        super().__init__(master, fg_color=COLOR_FONDO, corner_radius=0, width=900, height=600)
+        super().__init__(master, fg_color=COLOR_FONDO, corner_radius=0)
         self.contenido_service = contenido_service
         self.on_categorias = on_categorias
         self.on_niveles = on_niveles
@@ -38,8 +38,6 @@ class AdminPreguntasFrame(ctk.CTkFrame):
 
     def _construir_ui(self):
         """Construye la barra superior, el listado con filtro y el formulario de pregunta."""
-        self.pack_propagate(False)
-
         # ── Top bar ───────────────────────────────────────────────────
         top = ctk.CTkFrame(self, fg_color=COLOR_FONDO_FRAME, height=54, corner_radius=0)
         top.pack(fill="x", side="top")

@@ -16,7 +16,7 @@ class ResultadoFrame(ctk.CTkFrame):
                  es_record: bool, record_anterior: int,
                  top10: list[Ranking], on_volver):
         """Inicializa la pantalla de resultado con el puntaje y el estado de récord."""
-        super().__init__(master, fg_color=COLOR_FONDO, corner_radius=0, width=900, height=600)
+        super().__init__(master, fg_color=COLOR_FONDO, corner_radius=0)
         self.nombre_jugador = nombre_jugador
         self.puntaje = puntaje
         self.es_record = es_record
@@ -27,7 +27,6 @@ class ResultadoFrame(ctk.CTkFrame):
 
     def _construir_ui(self):
         """Construye el panel de resultado del jugador y la tabla Top 10."""
-        self.pack_propagate(False)
 
         # ── Panel izquierdo — resultado personal ──────────────────────
         left = ctk.CTkFrame(

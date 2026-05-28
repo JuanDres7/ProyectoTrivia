@@ -21,10 +21,12 @@ class App(ctk.CTk):
         self.partida_service = partida_service
         self.title(TITULO_APP)
         self.geometry(f"{ANCHO_VENTANA}x{ALTO_VENTANA}")
-        self.resizable(False, False)
+        self.resizable(True, True)
+        self.minsize(ANCHO_VENTANA, ALTO_VENTANA)
         self.configure(fg_color=COLOR_FONDO)
 
         self._frame_actual = None
+        self._fade_id = None
         self.mostrar_menu()
 
     # ------------------------------------------------------------------
@@ -32,11 +34,25 @@ class App(ctk.CTk):
     # ------------------------------------------------------------------
 
     def _cambiar_frame(self, nuevo_frame: ctk.CTkFrame):
-        """Destruye el frame visible actual y centra el nuevo en pantalla."""
+        """Destruye el frame visible actual, muestra el nuevo y lanza la transición de fade."""
         if self._frame_actual is not None:
             self._frame_actual.destroy()
         self._frame_actual = nuevo_frame
-        self._frame_actual.place(relx=0.5, rely=0.5, anchor="center")
+        if getattr(nuevo_frame, '_card_frame', False):
+            nuevo_frame.place(relx=0.5, rely=0.5, anchor="center")
+        else:
+            nuevo_frame.pack(fill="both", expand=True)
+        if self._fade_id:
+            self.after_cancel(self._fade_id)
+        self._fade_step(0.5)
+
+    def _fade_step(self, alpha: float):
+        """Anima la opacidad de la ventana de 0.5 a 1.0 para la transición entre pantallas."""
+        self.attributes('-alpha', alpha)
+        if alpha < 1.0:
+            self._fade_id = self.after(16, lambda: self._fade_step(min(alpha + 0.1, 1.0)))
+        else:
+            self._fade_id = None
 
     # ---- Auth --------------------------------------------------------
 

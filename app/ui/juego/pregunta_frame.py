@@ -20,7 +20,7 @@ class PreguntaFrame(ctk.CTkFrame):
                  numero: int, total: int, tiempo_limite: int,
                  on_respuesta, on_cancelar):
         """Inicializa el frame con la pregunta actual, el contador de tiempo y las opciones."""
-        super().__init__(master, fg_color=COLOR_FONDO, corner_radius=0, width=900, height=600)
+        super().__init__(master, fg_color=COLOR_FONDO, corner_radius=0)
         self.pregunta = pregunta
         self.opciones = opciones
         self.numero = numero
@@ -44,7 +44,6 @@ class PreguntaFrame(ctk.CTkFrame):
 
     def _construir_ui(self):
         """Construye la barra superior, el enunciado, las opciones y el botón de cancelar."""
-        self.pack_propagate(False)
 
         # ── Top bar ───────────────────────────────────────────────────
         top = ctk.CTkFrame(self, fg_color=COLOR_FONDO_FRAME, height=54, corner_radius=0)
@@ -171,10 +170,22 @@ class PreguntaFrame(ctk.CTkFrame):
         )
         lbl.grid(row=0, column=1, padx=(0, 14), pady=10, sticky="ew")
 
-        handler = lambda e: self._responder(opcion_id)
-        frame.bind("<Button-1>", handler)
-        badge.bind("<Button-1>", handler)
-        lbl.bind("<Button-1>", handler)
+        click_handler = lambda e: self._responder(opcion_id)
+        frame.bind("<Button-1>", click_handler)
+        badge.bind("<Button-1>", click_handler)
+        lbl.bind("<Button-1>", click_handler)
+
+        def on_enter(e, f=frame, cb=color_badge):
+            if not self._respondida:
+                f.configure(border_color=cb)
+
+        def on_leave(e, f=frame):
+            if not self._respondida:
+                f.configure(border_color=COLOR_BORDE)
+
+        for widget in (frame, badge, lbl):
+            widget.bind("<Enter>", on_enter)
+            widget.bind("<Leave>", on_leave)
 
         return frame, badge, lbl
 
@@ -200,6 +211,9 @@ class PreguntaFrame(ctk.CTkFrame):
 
         self._lbl_timer.configure(text=str(self._tiempo_restante), text_color=color)
         self._timer_pill.configure(border_color=color)
+
+        if self._tiempo_restante == 5:
+            self._pulsar_timer()
 
         if self._tiempo_restante <= 0:
             self._tiempo_agotado()
@@ -242,7 +256,7 @@ class PreguntaFrame(ctk.CTkFrame):
         self.after(1500, lambda: self.on_respuesta(opcion_id))
 
     def _aplicar_feedback_correcto(self, opcion_id: int):
-        """Colorea la opción correcta en verde y atenúa el resto."""
+        """Colorea la opción correcta en verde, atenúa el resto y lanza pulso de confirmación."""
         for oid, ui in self._opciones_ui.items():
             if oid == opcion_id:
                 ui["frame"].configure(fg_color="#061a0e", border_color=COLOR_EXITO)
@@ -252,9 +266,10 @@ class PreguntaFrame(ctk.CTkFrame):
                 ui["frame"].configure(fg_color=COLOR_FONDO, border_color=COLOR_FONDO)
                 ui["badge"].configure(fg_color="#1a1a30", text_color="#3a3a5c")
                 ui["texto"].configure(text_color="#3a3a5c")
+        self._pulsar_correcto(opcion_id)
 
     def _aplicar_feedback_incorrecto(self, opcion_incorrecta_id: int, opcion_correcta_id: int):
-        """Colorea en rojo la selección incorrecta, muestra la correcta en verde y atenúa el resto."""
+        """Colorea en rojo la selección incorrecta, muestra la correcta en verde y lanza el shake."""
         for oid, ui in self._opciones_ui.items():
             if oid == opcion_incorrecta_id:
                 ui["frame"].configure(fg_color="#1a0606", border_color=COLOR_ERROR)
@@ -268,6 +283,37 @@ class PreguntaFrame(ctk.CTkFrame):
                 ui["frame"].configure(fg_color=COLOR_FONDO, border_color=COLOR_FONDO)
                 ui["badge"].configure(fg_color="#1a1a30", text_color="#3a3a5c")
                 ui["texto"].configure(text_color="#3a3a5c")
+        self._shake_opcion(opcion_incorrecta_id)
+
+    # ------------------------------------------------------------------
+    # Animaciones
+    # ------------------------------------------------------------------
+
+    def _pulsar_timer(self, iteracion: int = 0):
+        """Pulsa el borde del timer mientras quedan ≤5 segundos."""
+        if self._respondida or self._tiempo_restante > 5:
+            return
+        bw = 4 if iteracion % 2 == 0 else 2
+        self._timer_pill.configure(border_width=bw)
+        self.after(300, lambda: self._pulsar_timer(iteracion + 1))
+
+    def _pulsar_correcto(self, opcion_id: int, iteracion: int = 0):
+        """Destella el borde blanco/verde de la opción correcta al acertar."""
+        if iteracion >= 4:
+            self._opciones_ui[opcion_id]["frame"].configure(border_color=COLOR_EXITO)
+            return
+        color = "#ffffff" if iteracion % 2 == 0 else COLOR_EXITO
+        self._opciones_ui[opcion_id]["frame"].configure(border_color=color)
+        self.after(80, lambda: self._pulsar_correcto(opcion_id, iteracion + 1))
+
+    def _shake_opcion(self, opcion_id: int, iteracion: int = 0):
+        """Sacude horizontalmente la opción incorrecta oscilando su margen."""
+        if iteracion >= 8:
+            self._opciones_ui[opcion_id]["frame"].grid_configure(padx=6)
+            return
+        offset = 8 if iteracion % 2 == 0 else -4
+        self._opciones_ui[opcion_id]["frame"].grid_configure(padx=(6 + offset, 6 - offset))
+        self.after(50, lambda: self._shake_opcion(opcion_id, iteracion + 1))
 
     def _confirmar_cancelar(self):
         """Muestra el diálogo de confirmación antes de abandonar la partida."""

@@ -21,6 +21,7 @@ class RankingFrame(ctk.CTkFrame):
         )
         self.top10 = top10
         self.on_volver = on_volver
+        self._card_frame = True
         self._construir_ui()
 
     def _construir_ui(self):

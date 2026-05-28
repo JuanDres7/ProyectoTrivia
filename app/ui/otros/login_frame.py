@@ -22,6 +22,7 @@ class LoginFrame(ctk.CTkFrame):
         self.auth_service = auth_service
         self.on_login_exitoso = on_login_exitoso
         self.on_volver = on_volver
+        self._card_frame = True
         self._construir_ui()
 
     def _construir_ui(self):
