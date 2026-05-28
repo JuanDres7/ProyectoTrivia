@@ -25,7 +25,7 @@ class IngresoJugadorFrame(ctk.CTkFrame):
 
     def _construir_ui(self):
         """Construye el campo de nombre con validación y botones de continuar/volver."""
-        self.columnconfigure(0, weight=1)
+        self.columnconfigure(0, weight=1, minsize=350)
 
         ctk.CTkLabel(
             self, text="⚡",
@@ -48,7 +48,7 @@ class IngresoJugadorFrame(ctk.CTkFrame):
         self._entry_nombre = ctk.CTkEntry(
             self,
             placeholder_text="Tu nombre",
-            width=300, height=44,
+            width=250, height=44,
             font=FUENTE_NORMAL,
             fg_color=COLOR_SUPERFICIE,
             border_color=COLOR_BORDE,
@@ -73,7 +73,7 @@ class IngresoJugadorFrame(ctk.CTkFrame):
         ctk.CTkButton(
             self,
             text="CONTINUAR  ▶",
-            width=300, height=48, corner_radius=10,
+            width=250, height=48, corner_radius=10,
             font=FUENTE_NORMAL,
             fg_color=COLOR_PRIMARIO,
             hover_color=COLOR_PRIMARIO_HOVER,
@@ -84,7 +84,7 @@ class IngresoJugadorFrame(ctk.CTkFrame):
         ctk.CTkButton(
             self,
             text="← Volver",
-            width=300, height=40, corner_radius=10,
+            width=250, height=40, corner_radius=10,
             font=FUENTE_PEQUEÑA,
             fg_color="transparent",
             border_width=1,

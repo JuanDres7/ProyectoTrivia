@@ -27,7 +27,7 @@ class LoginFrame(ctk.CTkFrame):
 
     def _construir_ui(self):
         """Construye el formulario de usuario y contraseña con su botón de ingreso."""
-        self.columnconfigure(0, weight=1, minsize=420)
+        self.columnconfigure(0, weight=1, minsize=350)
 
         ctk.CTkLabel(
             self, text="⚙",
