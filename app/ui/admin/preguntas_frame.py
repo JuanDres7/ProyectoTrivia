@@ -4,8 +4,7 @@ from app.ui.otros.dialogo import mostrar_error, mostrar_aviso, confirmar
 from app.config.settings import (
     COLOR_FONDO, COLOR_FONDO_FRAME, COLOR_SUPERFICIE, COLOR_BORDE,
     COLOR_PRIMARIO, COLOR_PRIMARIO_HOVER,
-    COLOR_SECUNDARIO, COLOR_SECUNDARIO_HOVER,
-    COLOR_EXITO, COLOR_ERROR,
+    COLOR_EXITO, COLOR_ERROR, COLOR_DORADO,
     COLOR_TEXTO, COLOR_TEXTO_SEC,
     FUENTE_SUBTITULO, FUENTE_NORMAL, FUENTE_PEQUEÑA, FUENTE_BADGE,
 )
@@ -133,8 +132,8 @@ class AdminPreguntasFrame(ctk.CTkFrame):
             btn_bar, text="Desactivar",
             width=90, height=34, corner_radius=8,
             font=FUENTE_PEQUEÑA,
-            fg_color=COLOR_SECUNDARIO, hover_color=COLOR_SECUNDARIO_HOVER,
-            text_color=COLOR_TEXTO,
+            fg_color=COLOR_DORADO, hover_color="#d97706",
+            text_color="#030712",
             state="disabled",
             command=self._toggle_activa,
         )
@@ -352,8 +351,8 @@ class AdminPreguntasFrame(ctk.CTkFrame):
         if activa:
             self._btn_toggle.configure(
                 text="Desactivar",
-                fg_color=COLOR_SECUNDARIO, hover_color=COLOR_SECUNDARIO_HOVER,
-                text_color=COLOR_TEXTO, state="normal",
+                fg_color=COLOR_DORADO, hover_color="#d97706",
+                text_color="#030712", state="normal",
             )
         else:
             self._btn_toggle.configure(
@@ -376,7 +375,7 @@ class AdminPreguntasFrame(ctk.CTkFrame):
         self._lbl_form_error.configure(text="")
         self._btn_toggle.configure(
             state="disabled", text="Desactivar",
-            fg_color=COLOR_SECUNDARIO, text_color=COLOR_TEXTO,
+            fg_color=COLOR_DORADO, text_color="#030712",
         )
         self._deseleccionar_filas()
 
