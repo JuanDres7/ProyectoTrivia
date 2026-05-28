@@ -1,11 +1,12 @@
-import tkinter.ttk as ttk
 import customtkinter as ctk
 from app.services.contenido_service import ContenidoService
 from app.ui.otros.dialogo import mostrar_error, mostrar_aviso, confirmar
 from app.config.settings import (
-    COLOR_PRIMARIO, COLOR_SECUNDARIO, COLOR_FONDO, COLOR_FONDO_FRAME,
-    COLOR_TEXTO, COLOR_ERROR, COLOR_EXITO,
-    FUENTE_SUBTITULO, FUENTE_NORMAL, FUENTE_PEQUEÑA,
+    COLOR_FONDO, COLOR_FONDO_FRAME, COLOR_SUPERFICIE, COLOR_BORDE,
+    COLOR_PRIMARIO, COLOR_PRIMARIO_HOVER,
+    COLOR_EXITO, COLOR_ERROR, COLOR_DORADO,
+    COLOR_TEXTO, COLOR_TEXTO_SEC,
+    FUENTE_SUBTITULO, FUENTE_NORMAL, FUENTE_PEQUEÑA, FUENTE_BADGE,
 )
 
 
@@ -14,14 +15,15 @@ class AdminPreguntasFrame(ctk.CTkFrame):
     def __init__(self, master, contenido_service: ContenidoService,
                  on_categorias, on_niveles, on_volver):
         """Inicializa el panel de preguntas y carga filtros y lista inicial."""
-        super().__init__(master, fg_color=COLOR_FONDO, corner_radius=0,
-                         width=900, height=600)
+        super().__init__(master, fg_color=COLOR_FONDO, corner_radius=0)
         self.contenido_service = contenido_service
         self.on_categorias = on_categorias
         self.on_niveles = on_niveles
         self.on_volver = on_volver
 
         self._pregunta_id_seleccionada: int | None = None
+        self._fila_widgets: dict[int, ctk.CTkFrame] = {}
+        self._filas_activa: dict[int, bool] = {}
         self._opciones_vars: list[ctk.StringVar] = []
         self._correcta_var = ctk.IntVar(value=0)
 
@@ -35,117 +37,209 @@ class AdminPreguntasFrame(ctk.CTkFrame):
 
     def _construir_ui(self):
         """Construye la barra superior, el listado con filtro y el formulario de pregunta."""
-        self.pack_propagate(False)
-
-        # Top bar
-        top = ctk.CTkFrame(self, fg_color=COLOR_FONDO_FRAME, height=50, corner_radius=0)
+        # ── Top bar ───────────────────────────────────────────────────
+        top = ctk.CTkFrame(self, fg_color=COLOR_FONDO_FRAME, height=54, corner_radius=0)
         top.pack(fill="x", side="top")
         top.pack_propagate(False)
 
-        ctk.CTkLabel(top, text="Gestión de Preguntas", font=FUENTE_SUBTITULO,
-                     text_color=COLOR_TEXTO).pack(side="left", padx=16, pady=10)
+        ctk.CTkLabel(
+            top, text="⚙  GESTIÓN DE PREGUNTAS",
+            font=FUENTE_SUBTITULO, text_color=COLOR_TEXTO,
+        ).pack(side="left", padx=20)
 
-        ctk.CTkButton(top, text="Niveles", width=90, font=FUENTE_PEQUEÑA,
-                      fg_color=COLOR_SECUNDARIO, command=self.on_niveles).pack(side="right", padx=6, pady=8)
-        ctk.CTkButton(top, text="Categorías", width=100, font=FUENTE_PEQUEÑA,
-                      fg_color=COLOR_SECUNDARIO, command=self.on_categorias).pack(side="right", padx=6, pady=8)
-        ctk.CTkButton(top, text="← Menú", width=90, font=FUENTE_PEQUEÑA,
-                      fg_color="transparent", border_width=1, text_color=COLOR_TEXTO,
-                      command=self.on_volver).pack(side="right", padx=6, pady=8)
+        for texto, cmd in [
+            ("← Menú", self.on_volver),
+            ("Categorías", self.on_categorias),
+            ("Niveles", self.on_niveles),
+        ]:
+            ctk.CTkButton(
+                top, text=texto,
+                width=100, height=34, corner_radius=8,
+                font=FUENTE_PEQUEÑA,
+                fg_color="transparent",
+                border_width=1, border_color=COLOR_BORDE,
+                text_color=COLOR_TEXTO_SEC,
+                hover_color=COLOR_SUPERFICIE,
+                command=cmd,
+            ).pack(side="right", padx=5, pady=10)
 
-        # Cuerpo
-        body = ctk.CTkFrame(self, fg_color=COLOR_FONDO, corner_radius=0)
+        ctk.CTkFrame(self, height=1, fg_color=COLOR_BORDE, corner_radius=0).pack(fill="x")
+
+        # ── Cuerpo ────────────────────────────────────────────────────
+        body = ctk.CTkFrame(self, fg_color="transparent", corner_radius=0)
         body.pack(fill="both", expand=True)
 
-        # Panel izquierdo — lista
-        left = ctk.CTkFrame(body, fg_color=COLOR_FONDO_FRAME, corner_radius=8, width=380)
-        left.pack(side="left", fill="y", padx=(10, 5), pady=10)
+        # ── Panel izquierdo — lista ───────────────────────────────────
+        left = ctk.CTkFrame(
+            body,
+            fg_color=COLOR_FONDO_FRAME,
+            corner_radius=10,
+            border_width=1,
+            border_color=COLOR_BORDE,
+            width=360,
+        )
+        left.pack(side="left", fill="y", padx=(12, 6), pady=12)
         left.pack_propagate(False)
 
-        ctk.CTkLabel(left, text="Filtrar por nivel:", font=FUENTE_PEQUEÑA,
-                     text_color=COLOR_TEXTO).pack(anchor="w", padx=10, pady=(10, 2))
-        self._filtro_nivel = ctk.CTkOptionMenu(left, values=["Todos"], width=340,
-                                                command=lambda _: self._cargar_preguntas())
-        self._filtro_nivel.pack(padx=10, pady=(0, 6))
+        # Filtro por nivel
+        ctk.CTkLabel(
+            left, text="Filtrar por nivel",
+            font=FUENTE_PEQUEÑA, text_color=COLOR_TEXTO_SEC,
+        ).pack(anchor="w", padx=14, pady=(12, 3))
 
-        # Treeview
-        style = ttk.Style()
-        style.theme_use("clam")
-        style.configure("Treeview", background="#2b2b2b", foreground="white",
-                        fieldbackground="#2b2b2b", rowheight=24, font=("Roboto", 11))
-        style.configure("Treeview.Heading", background="#1f6aa5", foreground="white",
-                        font=("Roboto", 11, "bold"))
-        style.map("Treeview", background=[("selected", "#1f6aa5")])
+        self._filtro_nivel = ctk.CTkOptionMenu(
+            left, values=["Todos"],
+            fg_color=COLOR_SUPERFICIE,
+            button_color=COLOR_FONDO_FRAME,
+            button_hover_color=COLOR_PRIMARIO,
+            dropdown_fg_color=COLOR_FONDO_FRAME,
+            dropdown_text_color=COLOR_TEXTO,
+            dropdown_hover_color=COLOR_SUPERFICIE,
+            text_color=COLOR_TEXTO,
+            command=lambda _: self._cargar_preguntas(),
+        )
+        self._filtro_nivel.pack(fill="x", padx=10, pady=(0, 8))
 
-        cols = ("id", "enunciado", "nivel", "estado")
-        self._tree = ttk.Treeview(left, columns=cols, show="headings", height=16)
-        self._tree.heading("id",       text="ID")
-        self._tree.heading("enunciado", text="Enunciado")
-        self._tree.heading("nivel",    text="Nivel")
-        self._tree.heading("estado",   text="Estado")
-        self._tree.column("id",        width=35,  anchor="center")
-        self._tree.column("enunciado", width=195)
-        self._tree.column("nivel",     width=55,  anchor="center")
-        self._tree.column("estado",    width=70,  anchor="center")
-        self._tree.tag_configure("inactiva", foreground="#777777")
-        self._tree.pack(fill="both", expand=True, padx=10, pady=(0, 6))
-        self._tree.bind("<<TreeviewSelect>>", self._on_seleccionar)
+        # Cabecera de tabla
+        header = ctk.CTkFrame(left, fg_color=COLOR_PRIMARIO, corner_radius=8, height=30)
+        header.pack(fill="x", padx=10, pady=(0, 2))
+        header.pack_propagate(False)
+        ctk.CTkLabel(header, text="#", width=28, font=FUENTE_BADGE, text_color="#080812").pack(side="left", padx=4)
+        ctk.CTkLabel(header, text="Enunciado", font=FUENTE_BADGE, text_color="#080812", anchor="w").pack(side="left", fill="x", expand=True)
+        ctk.CTkLabel(header, text="Nivel", width=68, font=FUENTE_BADGE, text_color="#080812").pack(side="left")
+        ctk.CTkLabel(header, text="●", width=24, font=FUENTE_BADGE, text_color="#080812").pack(side="right", padx=4)
 
+        # Scrollable con las filas
+        self._lista_scroll = ctk.CTkScrollableFrame(
+            left, fg_color="transparent", corner_radius=0,
+        )
+        self._lista_scroll.pack(fill="both", expand=True, padx=10, pady=(0, 8))
+
+        # Botones de acción de lista
         btn_bar = ctk.CTkFrame(left, fg_color="transparent")
         btn_bar.pack(fill="x", padx=10, pady=(0, 10))
-        ctk.CTkButton(btn_bar, text="Nueva", font=FUENTE_PEQUEÑA, width=80,
-                      fg_color=COLOR_EXITO, text_color="#000000",
-                      command=self._limpiar_formulario).pack(side="left")
-        self._btn_toggle = ctk.CTkButton(btn_bar, text="Desactivar", font=FUENTE_PEQUEÑA, width=90,
-                                          fg_color=COLOR_SECUNDARIO, state="disabled",
-                                          command=self._toggle_activa)
-        self._btn_toggle.pack(side="left", padx=6)
-        ctk.CTkButton(btn_bar, text="Eliminar", font=FUENTE_PEQUEÑA, width=80,
-                      fg_color=COLOR_ERROR, command=self._eliminar).pack(side="right")
 
-        # Panel derecho — formulario
-        right = ctk.CTkScrollableFrame(body, fg_color=COLOR_FONDO_FRAME,
-                                       corner_radius=8, width=460)
-        right.pack(side="left", fill="both", expand=True, padx=(5, 10), pady=10)
+        ctk.CTkButton(
+            btn_bar, text="Nueva",
+            width=76, height=34, corner_radius=8,
+            font=FUENTE_PEQUEÑA,
+            fg_color=COLOR_EXITO, hover_color="#1db358",
+            text_color="#080812",
+            command=self._limpiar_formulario,
+        ).pack(side="left")
 
-        ctk.CTkLabel(right, text="Enunciado", font=FUENTE_PEQUEÑA,
-                     text_color=COLOR_TEXTO).pack(anchor="w", padx=10, pady=(10, 2))
-        self._entry_enunciado = ctk.CTkTextbox(right, height=70, font=FUENTE_NORMAL)
-        self._entry_enunciado.pack(fill="x", padx=10)
+        self._btn_toggle = ctk.CTkButton(
+            btn_bar, text="Desactivar",
+            width=90, height=34, corner_radius=8,
+            font=FUENTE_PEQUEÑA,
+            fg_color=COLOR_DORADO, hover_color="#d97706",
+            text_color="#030712",
+            state="disabled",
+            command=self._toggle_activa,
+        )
+        self._btn_toggle.pack(side="left", padx=5)
 
-        ctk.CTkLabel(right, text="Nivel", font=FUENTE_PEQUEÑA,
-                     text_color=COLOR_TEXTO).pack(anchor="w", padx=10, pady=(10, 2))
+        ctk.CTkButton(
+            btn_bar, text="Eliminar",
+            width=76, height=34, corner_radius=8,
+            font=FUENTE_PEQUEÑA,
+            fg_color=COLOR_ERROR, hover_color="#c53030",
+            text_color=COLOR_TEXTO,
+            command=self._eliminar,
+        ).pack(side="right")
+
+        # ── Panel derecho — formulario ────────────────────────────────
+        right = ctk.CTkScrollableFrame(
+            body,
+            fg_color=COLOR_FONDO_FRAME,
+            corner_radius=10,
+            border_width=1,
+            border_color=COLOR_BORDE,
+        )
+        right.pack(side="left", fill="both", expand=True, padx=(6, 12), pady=12)
+
+        def _label_campo(texto):
+            ctk.CTkLabel(
+                right, text=texto,
+                font=FUENTE_PEQUEÑA, text_color=COLOR_TEXTO_SEC,
+            ).pack(anchor="w", padx=14, pady=(14, 3))
+
+        _label_campo("Enunciado *")
+        self._entry_enunciado = ctk.CTkTextbox(
+            right, height=80, font=FUENTE_NORMAL,
+            fg_color=COLOR_SUPERFICIE,
+            border_color=COLOR_BORDE, border_width=2,
+            text_color=COLOR_TEXTO,
+        )
+        self._entry_enunciado.pack(fill="x", padx=14)
+
+        _label_campo("Nivel *")
         self._nivel_var = ctk.StringVar()
-        self._opt_nivel = ctk.CTkOptionMenu(right, variable=self._nivel_var, values=[""])
-        self._opt_nivel.pack(fill="x", padx=10)
+        self._opt_nivel = ctk.CTkOptionMenu(
+            right, variable=self._nivel_var, values=[""],
+            fg_color=COLOR_SUPERFICIE,
+            button_color=COLOR_FONDO_FRAME,
+            button_hover_color=COLOR_PRIMARIO,
+            dropdown_fg_color=COLOR_FONDO_FRAME,
+            dropdown_text_color=COLOR_TEXTO,
+            dropdown_hover_color=COLOR_SUPERFICIE,
+            text_color=COLOR_TEXTO,
+        )
+        self._opt_nivel.pack(fill="x", padx=14)
 
-        ctk.CTkLabel(right, text="Categoría (opcional)", font=FUENTE_PEQUEÑA,
-                     text_color=COLOR_TEXTO).pack(anchor="w", padx=10, pady=(10, 2))
+        _label_campo("Categoría  (opcional)")
         self._cat_var = ctk.StringVar()
-        self._opt_cat = ctk.CTkOptionMenu(right, variable=self._cat_var, values=["Sin categoría"])
-        self._opt_cat.pack(fill="x", padx=10)
+        self._opt_cat = ctk.CTkOptionMenu(
+            right, variable=self._cat_var, values=["Sin categoría"],
+            fg_color=COLOR_SUPERFICIE,
+            button_color=COLOR_FONDO_FRAME,
+            button_hover_color=COLOR_PRIMARIO,
+            dropdown_fg_color=COLOR_FONDO_FRAME,
+            dropdown_text_color=COLOR_TEXTO,
+            dropdown_hover_color=COLOR_SUPERFICIE,
+            text_color=COLOR_TEXTO,
+        )
+        self._opt_cat.pack(fill="x", padx=14)
 
-        ctk.CTkLabel(right, text="Opciones  (marca la correcta)",
-                     font=FUENTE_PEQUEÑA, text_color=COLOR_TEXTO).pack(anchor="w", padx=10, pady=(14, 4))
+        _label_campo("Opciones  (marca la correcta ◉)")
 
         self._opciones_vars = []
-        letras = ["A", "B", "C", "D"]
-        for i, letra in enumerate(letras):
-            row = ctk.CTkFrame(right, fg_color="transparent")
-            row.pack(fill="x", padx=10, pady=3)
-            ctk.CTkRadioButton(row, text=letra, variable=self._correcta_var,
-                               value=i, width=40).pack(side="left")
+        for i, letra in enumerate(["A", "B", "C", "D"]):
+            fila = ctk.CTkFrame(right, fg_color="transparent")
+            fila.pack(fill="x", padx=14, pady=3)
+            ctk.CTkRadioButton(
+                fila, text=letra,
+                variable=self._correcta_var, value=i,
+                width=40,
+                fg_color=COLOR_PRIMARIO,
+                hover_color=COLOR_PRIMARIO_HOVER,
+                text_color=COLOR_TEXTO,
+                border_color=COLOR_BORDE,
+            ).pack(side="left")
             var = ctk.StringVar()
-            ctk.CTkEntry(row, textvariable=var, placeholder_text=f"Opción {letra}",
-                         font=FUENTE_NORMAL).pack(side="left", fill="x", expand=True, padx=(6, 0))
+            ctk.CTkEntry(
+                fila, textvariable=var,
+                placeholder_text=f"Opción {letra}",
+                font=FUENTE_NORMAL,
+                fg_color=COLOR_SUPERFICIE,
+                border_color=COLOR_BORDE, border_width=2,
+                text_color=COLOR_TEXTO,
+            ).pack(side="left", fill="x", expand=True, padx=(8, 0))
             self._opciones_vars.append(var)
 
-        self._lbl_form_error = ctk.CTkLabel(right, text="", font=FUENTE_PEQUEÑA,
-                                             text_color=COLOR_ERROR)
-        self._lbl_form_error.pack(pady=(8, 0))
+        self._lbl_form_error = ctk.CTkLabel(
+            right, text="", font=FUENTE_PEQUEÑA, text_color=COLOR_ERROR,
+        )
+        self._lbl_form_error.pack(pady=(10, 0))
 
-        ctk.CTkButton(right, text="Guardar pregunta", font=FUENTE_NORMAL,
-                      fg_color=COLOR_PRIMARIO, command=self._guardar).pack(pady=(6, 16))
+        ctk.CTkButton(
+            right, text="Guardar pregunta",
+            height=44, corner_radius=10,
+            font=FUENTE_NORMAL,
+            fg_color=COLOR_PRIMARIO, hover_color=COLOR_PRIMARIO_HOVER,
+            text_color="#030712",
+            command=self._guardar,
+        ).pack(fill="x", padx=14, pady=(8, 20))
 
     # ------------------------------------------------------------------
     # Carga de datos
@@ -168,33 +262,59 @@ class AdminPreguntasFrame(ctk.CTkFrame):
         self._cat_var.set("Sin categoría")
 
     def _cargar_preguntas(self):
-        """Recarga la tabla aplicando el filtro de nivel activo."""
+        """Reconstruye las filas de la lista con el filtro de nivel activo."""
         filtro = self._filtro_nivel.get()
         nivel_id = self._niveles_map.get(filtro) if filtro != "Todos" else None
         preguntas = self.contenido_service.listar_preguntas(nivel_id, solo_activas=False)
-
         niveles_por_id = {v: k for k, v in self._niveles_map.items()}
 
-        for row in self._tree.get_children():
-            self._tree.delete(row)
+        for fila in self._fila_widgets.values():
+            fila.destroy()
+        self._fila_widgets.clear()
+        self._filas_activa.clear()
+
         for p in preguntas:
-            enunciado = p.enunciado if len(p.enunciado) <= 32 else p.enunciado[:29] + "..."
-            estado = "Activa" if p.activa else "Inactiva"
-            tag = () if p.activa else ("inactiva",)
-            self._tree.insert("", "end", iid=str(p.id),
-                              values=(p.id, enunciado, niveles_por_id.get(p.nivel_id, "?"), estado),
-                              tags=tag)
+            self._filas_activa[p.id] = p.activa
+            fondo = COLOR_SUPERFICIE if p.activa else COLOR_FONDO_FRAME
+            color_txt = COLOR_TEXTO if p.activa else COLOR_TEXTO_SEC
+
+            fila = ctk.CTkFrame(
+                self._lista_scroll,
+                fg_color=fondo,
+                corner_radius=6,
+                cursor="hand2",
+            )
+            fila.pack(fill="x", pady=1)
+
+            enunciado = (p.enunciado[:30] + "…") if len(p.enunciado) > 30 else p.enunciado
+            nivel_txt = niveles_por_id.get(p.nivel_id, "?")
+
+            ctk.CTkLabel(fila, text=str(p.id), width=28, font=FUENTE_BADGE,
+                         text_color=COLOR_TEXTO_SEC).pack(side="left", padx=4, pady=6)
+            ctk.CTkLabel(fila, text=enunciado, font=FUENTE_PEQUEÑA,
+                         text_color=color_txt, anchor="w").pack(side="left", fill="x", expand=True, padx=2)
+            ctk.CTkLabel(fila, text=nivel_txt, width=68, font=FUENTE_BADGE,
+                         text_color=COLOR_PRIMARIO if p.activa else COLOR_TEXTO_SEC).pack(side="left")
+            ctk.CTkLabel(fila, text="●", width=22, font=("Segoe UI", 10),
+                         text_color=COLOR_EXITO if p.activa else COLOR_ERROR).pack(side="right", padx=4)
+
+            handler = lambda e, pid=p.id: self._on_click_fila(pid)
+            fila.bind("<Button-1>", handler)
+            for child in fila.winfo_children():
+                child.bind("<Button-1>", handler)
+
+            self._fila_widgets[p.id] = fila
 
     # ------------------------------------------------------------------
-    # Acciones
+    # Selección interactiva
     # ------------------------------------------------------------------
 
-    def _on_seleccionar(self, _event=None):
-        """Carga la pregunta seleccionada en el formulario de edición."""
-        sel = self._tree.selection()
-        if not sel:
-            return
-        pregunta_id = int(sel[0])
+    def _on_click_fila(self, pregunta_id: int):
+        """Resalta la fila seleccionada y carga sus datos en el formulario."""
+        self._deseleccionar_filas()
+        fila = self._fila_widgets.get(pregunta_id)
+        if fila:
+            fila.configure(fg_color="#051520", border_width=1, border_color=COLOR_PRIMARIO)
         self._pregunta_id_seleccionada = pregunta_id
         try:
             pregunta, opciones = self.contenido_service.obtener_pregunta_con_opciones(pregunta_id)
@@ -219,23 +339,31 @@ class AdminPreguntasFrame(ctk.CTkFrame):
         self._lbl_form_error.configure(text="")
         self._actualizar_btn_toggle(pregunta.activa)
 
-    def _actualizar_btn_toggle(self, activa: bool):
-        """Actualiza el texto y color del botón de activar/desactivar según el estado."""
-        if activa:
-            self._btn_toggle.configure(text="Desactivar", fg_color=COLOR_SECUNDARIO, state="normal")
-        else:
-            self._btn_toggle.configure(text="Activar", fg_color=COLOR_EXITO, text_color="#000000", state="normal")
+    def _deseleccionar_filas(self):
+        """Quita el resaltado de selección de todas las filas."""
+        for pid, fila in self._fila_widgets.items():
+            activa = self._filas_activa.get(pid, True)
+            fondo = COLOR_SUPERFICIE if activa else COLOR_FONDO_FRAME
+            fila.configure(fg_color=fondo, border_width=0)
 
-    def _toggle_activa(self):
-        """Activa o desactiva la pregunta seleccionada y refresca la tabla."""
-        if self._pregunta_id_seleccionada is None:
-            return
-        try:
-            nueva_activa = self.contenido_service.toggle_activa_pregunta(self._pregunta_id_seleccionada)
-            self._cargar_preguntas()
-            self._actualizar_btn_toggle(nueva_activa)
-        except ValueError as e:
-            mostrar_error(self, str(e))
+    def _actualizar_btn_toggle(self, activa: bool):
+        """Actualiza el texto y color del botón activar/desactivar según el estado."""
+        if activa:
+            self._btn_toggle.configure(
+                text="Desactivar",
+                fg_color=COLOR_DORADO, hover_color="#d97706",
+                text_color="#030712", state="normal",
+            )
+        else:
+            self._btn_toggle.configure(
+                text="Activar",
+                fg_color=COLOR_EXITO, hover_color="#1db358",
+                text_color="#080812", state="normal",
+            )
+
+    # ------------------------------------------------------------------
+    # Acciones del formulario
+    # ------------------------------------------------------------------
 
     def _limpiar_formulario(self):
         """Vacía todos los campos del formulario y deselecciona la tabla."""
@@ -245,8 +373,22 @@ class AdminPreguntasFrame(ctk.CTkFrame):
             var.set("")
         self._correcta_var.set(0)
         self._lbl_form_error.configure(text="")
-        self._btn_toggle.configure(state="disabled", text="Desactivar", fg_color=COLOR_SECUNDARIO)
-        self._tree.selection_remove(self._tree.selection())
+        self._btn_toggle.configure(
+            state="disabled", text="Desactivar",
+            fg_color=COLOR_DORADO, text_color="#030712",
+        )
+        self._deseleccionar_filas()
+
+    def _toggle_activa(self):
+        """Activa o desactiva la pregunta seleccionada y refresca la lista."""
+        if self._pregunta_id_seleccionada is None:
+            return
+        try:
+            nueva_activa = self.contenido_service.toggle_activa_pregunta(self._pregunta_id_seleccionada)
+            self._cargar_preguntas()
+            self._actualizar_btn_toggle(nueva_activa)
+        except ValueError as e:
+            mostrar_error(self, str(e))
 
     def _guardar(self):
         """Crea o actualiza la pregunta con sus opciones según si hay una seleccionada."""
@@ -259,7 +401,6 @@ class AdminPreguntasFrame(ctk.CTkFrame):
              "es_correcta": (i == self._correcta_var.get())}
             for i in range(4)
         ]
-
         try:
             if self._pregunta_id_seleccionada is None:
                 self.contenido_service.crear_pregunta(enunciado, nivel_id, opciones, cat_id)

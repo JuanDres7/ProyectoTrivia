@@ -21,7 +21,8 @@ class App(ctk.CTk):
         self.partida_service = partida_service
         self.title(TITULO_APP)
         self.geometry(f"{ANCHO_VENTANA}x{ALTO_VENTANA}")
-        self.resizable(False, False)
+        self.resizable(True, True)
+        self.minsize(ANCHO_VENTANA, ALTO_VENTANA)
         self.configure(fg_color=COLOR_FONDO)
 
         self._frame_actual = None
@@ -32,11 +33,14 @@ class App(ctk.CTk):
     # ------------------------------------------------------------------
 
     def _cambiar_frame(self, nuevo_frame: ctk.CTkFrame):
-        """Destruye el frame visible actual y centra el nuevo en pantalla."""
+        """Destruye el frame visible actual y muestra el nuevo en pantalla."""
         if self._frame_actual is not None:
             self._frame_actual.destroy()
         self._frame_actual = nuevo_frame
-        self._frame_actual.place(relx=0.5, rely=0.5, anchor="center")
+        if getattr(nuevo_frame, '_card_frame', False):
+            nuevo_frame.place(relx=0.5, rely=0.5, anchor="center")
+        else:
+            nuevo_frame.pack(fill="both", expand=True)
 
     # ---- Auth --------------------------------------------------------
 
