@@ -27,7 +27,7 @@ class LoginFrame(ctk.CTkFrame):
 
     def _construir_ui(self):
         """Construye el formulario de usuario y contraseña con su botón de ingreso."""
-        self.columnconfigure(0, weight=1)
+        self.columnconfigure(0, weight=1, minsize=420)
 
         ctk.CTkLabel(
             self, text="⚙",
@@ -50,7 +50,7 @@ class LoginFrame(ctk.CTkFrame):
         self.entry_usuario = ctk.CTkEntry(
             self,
             placeholder_text="Usuario",
-            width=300, height=44,
+            width=250, height=44,
             font=FUENTE_NORMAL,
             fg_color=COLOR_SUPERFICIE,
             border_color=COLOR_BORDE,
@@ -66,7 +66,7 @@ class LoginFrame(ctk.CTkFrame):
             self,
             placeholder_text="Contraseña",
             show="*",
-            width=300, height=44,
+            width=250, height=44,
             font=FUENTE_NORMAL,
             fg_color=COLOR_SUPERFICIE,
             border_color=COLOR_BORDE,
@@ -87,7 +87,7 @@ class LoginFrame(ctk.CTkFrame):
         ctk.CTkButton(
             self,
             text="INGRESAR  ▶",
-            width=300, height=48, corner_radius=10,
+            width=250, height=48, corner_radius=10,
             font=FUENTE_NORMAL,
             fg_color=COLOR_PRIMARIO,
             hover_color=COLOR_PRIMARIO_HOVER,
@@ -99,7 +99,7 @@ class LoginFrame(ctk.CTkFrame):
             ctk.CTkButton(
                 self,
                 text="← Volver",
-                width=300, height=40, corner_radius=10,
+                width=250, height=40, corner_radius=10,
                 font=FUENTE_PEQUEÑA,
                 fg_color="transparent",
                 border_width=1,
