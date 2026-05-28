@@ -9,6 +9,7 @@ COLOR_SECUNDARIO_HOVER = "#d946ef"   # Magenta oscuro — hover secundario
 COLOR_DORADO           = "#fbbf24"   # Dorado — 1er lugar, puntaje récord
 COLOR_EXITO            = "#4ade80"   # Verde neón — respuesta correcta
 COLOR_ERROR            = "#f87171"   # Rojo suave — respuesta incorrecta / errores
+COLOR_ERROR_HOVER      = "CF4242"
 COLOR_TEXTO            = "#e2e8f0"   # Blanco suave — texto principal
 COLOR_TEXTO_SEC        = "#94a3b8"   # Gris azulado — subtítulos, placeholders
 COLOR_BORDE            = "#1e1e4a"   # Borde sutil de separadores y cards
