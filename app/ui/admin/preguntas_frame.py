@@ -107,7 +107,7 @@ class AdminPreguntasFrame(ctk.CTkFrame):
         header.pack_propagate(False)
         ctk.CTkLabel(header, text="#", width=28, font=FUENTE_BADGE, text_color="#080812").pack(side="left", padx=4)
         ctk.CTkLabel(header, text="Enunciado", font=FUENTE_BADGE, text_color="#080812", anchor="w").pack(side="left", fill="x", expand=True)
-        ctk.CTkLabel(header, text="Niv", width=36, font=FUENTE_BADGE, text_color="#080812").pack(side="left")
+        ctk.CTkLabel(header, text="Nivel", width=68, font=FUENTE_BADGE, text_color="#080812").pack(side="left")
         ctk.CTkLabel(header, text="●", width=24, font=FUENTE_BADGE, text_color="#080812").pack(side="right", padx=4)
 
         # Scrollable con las filas
@@ -288,13 +288,13 @@ class AdminPreguntasFrame(ctk.CTkFrame):
             fila.pack(fill="x", pady=1)
 
             enunciado = (p.enunciado[:30] + "…") if len(p.enunciado) > 30 else p.enunciado
-            nivel_txt = niveles_por_id.get(p.nivel_id, "?")[:4]
+            nivel_txt = niveles_por_id.get(p.nivel_id, "?")
 
             ctk.CTkLabel(fila, text=str(p.id), width=28, font=FUENTE_BADGE,
                          text_color=COLOR_TEXTO_SEC).pack(side="left", padx=4, pady=6)
             ctk.CTkLabel(fila, text=enunciado, font=FUENTE_PEQUEÑA,
                          text_color=color_txt, anchor="w").pack(side="left", fill="x", expand=True, padx=2)
-            ctk.CTkLabel(fila, text=nivel_txt, width=36, font=FUENTE_BADGE,
+            ctk.CTkLabel(fila, text=nivel_txt, width=68, font=FUENTE_BADGE,
                          text_color=COLOR_PRIMARIO if p.activa else COLOR_TEXTO_SEC).pack(side="left")
             ctk.CTkLabel(fila, text="●", width=22, font=("Segoe UI", 10),
                          text_color=COLOR_EXITO if p.activa else COLOR_ERROR).pack(side="right", padx=4)

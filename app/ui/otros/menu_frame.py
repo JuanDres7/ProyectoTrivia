@@ -98,12 +98,15 @@ class MenuFrame(ctk.CTkFrame):
 
     def _slide_btn(self, btn: ctk.CTkButton, start_offset: int, step: int):
         """Anima el deslizamiento vertical de un botón desde abajo hasta su posición natural."""
-        MAX = 10
-        if step > MAX:
-            btn.grid_configure(pady=7)
-            return
-        t = step / MAX
-        ease = 1 - (1 - t) ** 3
-        offset = int(start_offset * (1 - ease))
-        btn.grid_configure(pady=(offset + 7, 7))
-        self.after(25, lambda: self._slide_btn(btn, start_offset, step + 1))
+        try:
+            MAX = 10
+            if step > MAX:
+                btn.grid_configure(pady=7)
+                return
+            t = step / MAX
+            ease = 1 - (1 - t) ** 3
+            offset = int(start_offset * (1 - ease))
+            btn.grid_configure(pady=(offset + 7, 7))
+            self.after(25, lambda: self._slide_btn(btn, start_offset, step + 1))
+        except Exception:
+            pass

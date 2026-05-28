@@ -293,27 +293,38 @@ class PreguntaFrame(ctk.CTkFrame):
         """Pulsa el borde del timer mientras quedan ≤5 segundos."""
         if self._respondida or self._tiempo_restante > 5:
             return
-        bw = 4 if iteracion % 2 == 0 else 2
-        self._timer_pill.configure(border_width=bw)
-        self.after(300, lambda: self._pulsar_timer(iteracion + 1))
+        try:
+            bw = 4 if iteracion % 2 == 0 else 2
+            self._timer_pill.configure(border_width=bw)
+            self.after(300, lambda: self._pulsar_timer(iteracion + 1))
+        except Exception:
+            pass
 
     def _pulsar_correcto(self, opcion_id: int, iteracion: int = 0):
         """Destella el borde blanco/verde de la opción correcta al acertar."""
-        if iteracion >= 4:
-            self._opciones_ui[opcion_id]["frame"].configure(border_color=COLOR_EXITO)
-            return
-        color = "#ffffff" if iteracion % 2 == 0 else COLOR_EXITO
-        self._opciones_ui[opcion_id]["frame"].configure(border_color=color)
-        self.after(80, lambda: self._pulsar_correcto(opcion_id, iteracion + 1))
+        try:
+            if iteracion >= 4:
+                self._opciones_ui[opcion_id]["frame"].configure(border_color=COLOR_EXITO)
+                return
+            color = "#ffffff" if iteracion % 2 == 0 else COLOR_EXITO
+            self._opciones_ui[opcion_id]["frame"].configure(border_color=color)
+            self.after(80, lambda: self._pulsar_correcto(opcion_id, iteracion + 1))
+        except Exception:
+            pass
 
     def _shake_opcion(self, opcion_id: int, iteracion: int = 0):
-        """Sacude horizontalmente la opción incorrecta oscilando su margen."""
-        if iteracion >= 8:
-            self._opciones_ui[opcion_id]["frame"].grid_configure(padx=6)
-            return
-        offset = 8 if iteracion % 2 == 0 else -4
-        self._opciones_ui[opcion_id]["frame"].grid_configure(padx=(6 + offset, 6 - offset))
-        self.after(50, lambda: self._shake_opcion(opcion_id, iteracion + 1))
+        """Sacude horizontalmente la opción incorrecta oscilando su margen (padx siempre ≥ 0)."""
+        try:
+            if iteracion >= 8:
+                self._opciones_ui[opcion_id]["frame"].grid_configure(padx=6)
+                return
+            offset = 6 if iteracion % 2 == 0 else -6
+            padx_l = max(0, 6 + offset)
+            padx_r = max(0, 6 - offset)
+            self._opciones_ui[opcion_id]["frame"].grid_configure(padx=(padx_l, padx_r))
+            self.after(50, lambda: self._shake_opcion(opcion_id, iteracion + 1))
+        except Exception:
+            pass
 
     def _confirmar_cancelar(self):
         """Muestra el diálogo de confirmación antes de abandonar la partida."""
