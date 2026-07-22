@@ -1,0 +1,470 @@
+@startuml ProyectoTrivia_DiagramaClases_Completo
+
+skinparam classBackgroundColor #DEEAF1
+skinparam classBorderColor #2E75B6
+skinparam classHeaderBackgroundColor #1F4E79
+skinparam classFontColor white
+skinparam packageBackgroundColor #F8F9FA
+skinparam packageBorderColor #888888
+skinparam ArrowColor #333333
+skinparam linetype ortho
+skinparam shadowing false
+skinparam nodesep 60
+skinparam ranksep 80
+
+' ══════════════════════════════════════════════════════════════
+' CLASES EXTERNAS (customtkinter) — base de herencia
+' ══════════════════════════════════════════════════════════════
+
+package "customtkinter" <<external>> #EEEEEE {
+    class CTk {
+    }
+    class CTkFrame {
+    }
+}
+
+' ══════════════════════════════════════════════════════════════
+' PAQUETE: models.autenticacion
+' ══════════════════════════════════════════════════════════════
+
+package "models.autenticacion" <<layer: model>> #D6EAF8 {
+
+    class Usuario {
+        +id : int
+        +username : str
+        +password_hash : str
+    }
+}
+
+' ══════════════════════════════════════════════════════════════
+' PAQUETE: models.contenido
+' ══════════════════════════════════════════════════════════════
+
+package "models.contenido" <<layer: model>> #D6EAF8 {
+
+    class NivelDificultad {
+        +id : int
+        +nombre : str
+        +num_preguntas : int
+        +tiempo_limite_seg : int
+    }
+
+    class Categoria {
+        +id : int
+        +nombre : str
+        +descripcion : str
+        +activa : bool
+    }
+
+    class Pregunta {
+        +id : int
+        +categoria_id : int
+        +nivel_id : int
+        +enunciado : str
+        +activa : bool
+    }
+
+    class Opcion {
+        +id : int
+        +pregunta_id : int
+        +letra : str
+        +texto : str
+        +es_correcta : bool
+    }
+}
+
+' ══════════════════════════════════════════════════════════════
+' PAQUETE: models.partidas
+' ══════════════════════════════════════════════════════════════
+
+package "models.partidas" <<layer: model>> #D6EAF8 {
+
+    class Jugador {
+        +id : int
+        +nombre : str
+        +total_partidas : int
+    }
+
+    class Partida {
+        +id : int
+        +jugador_id : int
+        +nivel_id : int
+        +total_preguntas : int
+        +respuestas_correctas : int
+        +puntaje_final : int
+        +estado : str
+        +fecha : datetime
+    }
+
+    class Respuesta {
+        +id : int
+        +partida_id : int
+        +pregunta_id : int
+        +opcion_elegida_id : int
+        +es_correcta : bool
+        +puntos_obtenidos : int
+    }
+
+    class Ranking {
+        +id : int
+        +jugador_id : int
+        +nombre : str
+        +nivel_id : int
+        +puntaje : int
+        +es_record_global : bool
+        +fecha : datetime
+    }
+}
+
+' ══════════════════════════════════════════════════════════════
+' PAQUETE: repository
+' ══════════════════════════════════════════════════════════════
+
+package "repository" <<layer: repository>> #FEF9E7 {
+
+    class AuthRepository {
+        -session : Session
+        +obtener_por_username(username : str) : Usuario
+    }
+
+    class ContenidoRepository {
+        -session : Session
+        +crear_categoria(nombre : str, descripcion : str) : Categoria
+        +obtener_categorias(solo_activas : bool) : list[Categoria]
+        +obtener_categoria_por_id(categoria_id : int) : Categoria
+        +actualizar_categoria(categoria_id : int, nombre : str, descripcion : str) : Categoria
+        +desactivar_categoria(categoria_id : int) : bool
+        +obtener_niveles() : list[NivelDificultad]
+        +obtener_nivel_por_id(nivel_id : int) : NivelDificultad
+        +crear_pregunta(enunciado : str, nivel_id : int, opciones : list, categoria_id : int) : Pregunta
+        +obtener_preguntas(nivel_id : int, categoria_ids : list, solo_activas : bool) : list[Pregunta]
+        +obtener_pregunta_por_id(pregunta_id : int) : Pregunta
+        +obtener_opciones_de_pregunta(pregunta_id : int) : list[Opcion]
+        +actualizar_pregunta(pregunta_id : int, enunciado : str, nivel_id : int, opciones : list, categoria_id : int) : Pregunta
+        +desactivar_pregunta(pregunta_id : int) : bool
+        +activar_pregunta(pregunta_id : int) : bool
+        +eliminar_pregunta(pregunta_id : int) : bool
+        +existe_enunciado(enunciado : str, excluir_id : int) : bool
+    }
+
+    class PartidaRepository {
+        -session : Session
+        +obtener_o_crear_jugador(nombre : str) : Jugador
+        +incrementar_total_partidas(jugador_id : int) : None
+        +crear_partida(jugador_id : int, nivel_id : int, total_preguntas : int) : Partida
+        +actualizar_estado_partida(partida_id : int, estado : str) : None
+        +finalizar_partida(partida_id : int, respuestas_correctas : int, puntaje_final : int) : None
+        +registrar_respuesta(partida_id : int, pregunta_id : int, opcion_elegida_id : int, es_correcta : bool) : Respuesta
+        +registrar_en_ranking(jugador_id : int, nombre : str, nivel_id : int, puntaje : int) : Ranking
+        +obtener_record_global() : int
+        +marcar_record_global(ranking_id : int) : None
+        +obtener_top10() : list[Ranking]
+        +obtener_historial_jugador(jugador_id : int) : list[Partida]
+    }
+}
+
+' ══════════════════════════════════════════════════════════════
+' PAQUETE: services
+' ══════════════════════════════════════════════════════════════
+
+package "services" <<layer: service>> #E9F7EF {
+
+    class AuthService {
+        -auth_repository : AuthRepository
+        +autenticar(username : str, password : str) : bool
+    }
+
+    class ContenidoService {
+        -repo : ContenidoRepository
+        +crear_categoria(nombre : str, descripcion : str) : Categoria
+        +listar_categorias(solo_activas : bool) : list[Categoria]
+        +actualizar_categoria(categoria_id : int, nombre : str, descripcion : str) : Categoria
+        +eliminar_categoria(categoria_id : int) : None
+        +listar_niveles() : list[NivelDificultad]
+        +obtener_nivel(nivel_id : int) : NivelDificultad
+        +crear_pregunta(enunciado : str, nivel_id : int, opciones : list, categoria_id : int) : Pregunta
+        +listar_preguntas(nivel_id : int, solo_activas : bool) : list[Pregunta]
+        +obtener_pregunta_con_opciones(pregunta_id : int) : tuple[Pregunta, list[Opcion]]
+        +actualizar_pregunta(pregunta_id : int, enunciado : str, nivel_id : int, opciones : list, categoria_id : int) : Pregunta
+        +eliminar_pregunta(pregunta_id : int) : None
+        +toggle_activa_pregunta(pregunta_id : int) : bool
+        -_validar_pregunta(enunciado : str, opciones : list) : None
+    }
+
+    class PartidaService {
+        -partida_repo : PartidaRepository
+        -contenido_repo : ContenidoRepository
+        +iniciar_partida(nombre_jugador : str, nivel_id : int, categoria_ids : list) : tuple
+        +iniciar_sesion(nombre_jugador : str, nivel_id : int, categoria_ids : list) : SesionPartida
+        +responder_en_sesion(sesion : SesionPartida, opcion_elegida_id : int) : bool
+        +finalizar_sesion(sesion : SesionPartida) : dict
+        +cancelar_sesion(sesion : SesionPartida) : None
+        +responder_pregunta(partida_id : int, pregunta_id : int, opcion_elegida_id : int) : bool
+        +finalizar_partida(partida_id : int, jugador_id : int, nombre_jugador : str, nivel_id : int, respuestas_correctas : int) : dict
+        +cancelar_partida(partida_id : int) : None
+        +obtener_top10() : list[Ranking]
+        +obtener_historial_jugador(jugador_id : int) : list[Partida]
+        +obtener_nivel(nivel_id : int) : NivelDificultad
+    }
+
+    class SesionPartida {
+        -jugador : Jugador
+        -partida : Partida
+        -_preguntas : list[tuple[Pregunta, list[Opcion]]]
+        -_indice : int
+        -_correctas : int
+        +numero_actual : int
+        +total_preguntas : int
+        +correctas : int
+        +pregunta_actual() : tuple[Pregunta, list[Opcion]]
+        +hay_siguiente() : bool
+        +avanzar() : None
+        +registrar_correcta() : None
+    }
+}
+
+' ══════════════════════════════════════════════════════════════
+' PAQUETE: ui
+' ══════════════════════════════════════════════════════════════
+
+package "ui" <<layer: presentation>> #F4ECF7 {
+
+    class App {
+        -auth_service : AuthService
+        -contenido_service : ContenidoService
+        -partida_service : PartidaService
+        -_frame_actual : CTkFrame
+        -_cambiar_frame(nuevo_frame : CTkFrame) : None
+        +mostrar_login_admin() : None
+        +mostrar_menu() : None
+        +mostrar_ranking() : None
+        +mostrar_admin_preguntas() : None
+        +mostrar_admin_categorias() : None
+        +mostrar_admin_niveles() : None
+        +mostrar_ingreso_jugador() : None
+        +mostrar_seleccion_nivel(nombre_jugador : str) : None
+        -_iniciar_partida(nombre_jugador : str, nivel_id : int, categoria_ids : list) : None
+        +mostrar_pregunta(sesion : SesionPartida) : None
+        +mostrar_resultado(nombre_jugador : str, resultado : dict) : None
+    }
+
+    package "ui.otros" <<subpackage>> #EDE7F6 {
+
+        class LoginFrame {
+            -auth_service : AuthService
+            -on_login_exitoso : Callable
+            -on_volver : Callable
+            -_construir_ui() : None
+            -_intentar_login() : None
+        }
+
+        class MenuFrame {
+            -on_gestionar_preguntas : Callable
+            -on_iniciar_juego : Callable
+            -on_mostrar_ranking : Callable
+            -_construir_ui() : None
+        }
+
+        class RankingFrame {
+            -top10 : list[Ranking]
+            -on_volver : Callable
+            -_construir_ui() : None
+        }
+    }
+
+    package "ui.admin" <<subpackage>> #FEF0E6 {
+
+        class AdminPreguntasFrame {
+            -contenido_service : ContenidoService
+            -on_categorias : Callable
+            -on_niveles : Callable
+            -on_volver : Callable
+            -_construir_ui() : None
+            -_cargar_filtros() : None
+            -_cargar_preguntas() : None
+            -_on_seleccionar(event : Event) : None
+            -_actualizar_btn_toggle(activa : bool) : None
+            -_toggle_activa() : None
+            -_limpiar_formulario() : None
+            -_guardar() : None
+            -_eliminar() : None
+        }
+
+        class AdminCategoriasFrame {
+            -contenido_service : ContenidoService
+            -on_volver : Callable
+            -_construir_ui() : None
+            -_cargar_categorias() : None
+            -_on_seleccionar(event : Event) : None
+            -_limpiar() : None
+            -_guardar() : None
+            -_eliminar() : None
+        }
+
+        class AdminNivelesFrame {
+            -contenido_service : ContenidoService
+            -on_volver : Callable
+            -_construir_ui() : None
+            -_cargar_niveles() : None
+        }
+    }
+
+    package "ui.juego" <<subpackage>> #E8F8F5 {
+
+        class IngresoJugadorFrame {
+            -on_continuar : Callable
+            -on_volver : Callable
+            -_construir_ui() : None
+            -_continuar() : None
+        }
+
+        class SeleccionNivelFrame {
+            -contenido_service : ContenidoService
+            -nombre_jugador : str
+            -on_nivel_elegido : Callable
+            -on_volver : Callable
+            -_construir_ui() : None
+            -_construir_panel_niveles(parent : CTkFrame) : None
+            -_bind_card(card : CTkFrame, nivel_id : int, color : str) : None
+            -_seleccionar_nivel(nivel_id : int, card : CTkFrame, color : str) : None
+            -_construir_panel_categorias(parent : CTkFrame) : None
+            -_toggle_todas() : None
+            -_on_categoria_cambio() : None
+            -_actualizar_boton_jugar() : None
+            -_jugar() : None
+        }
+
+        class PreguntaFrame {
+            -pregunta : Pregunta
+            -opciones : list[Opcion]
+            -numero : int
+            -total : int
+            -tiempo_limite : int
+            -on_respuesta : Callable
+            -on_cancelar : Callable
+            -_tiempo_restante : int
+            -_respondida : bool
+            -_timer_id : str
+            -_botones : dict
+            -_lbl_timer : CTkLabel
+            -_construir_ui() : None
+            -_iniciar_timer() : None
+            -_tick() : None
+            -_tiempo_agotado() : None
+            -_responder(opcion_id : int) : None
+            -_confirmar_cancelar() : None
+        }
+
+        class ResultadoFrame {
+            -nombre_jugador : str
+            -puntaje : int
+            -es_record : bool
+            -record_anterior : int
+            -top10 : list[Ranking]
+            -on_volver : Callable
+            -_construir_ui() : None
+        }
+    }
+}
+
+' ══════════════════════════════════════════════════════════════
+' RELACIONES — MODELOS (asociación con FK)
+' ══════════════════════════════════════════════════════════════
+
+NivelDificultad "1" o--> "0..*" Pregunta       : nivel_id >
+Categoria       "1" o--> "0..*" Pregunta       : categoria_id (opcional) >
+Pregunta        "1" *--> "4"    Opcion          : pregunta_id >
+Jugador         "1" o--> "0..*" Partida         : jugador_id >
+NivelDificultad "1" o--> "0..*" Partida         : nivel_id >
+Partida         "1" *--> "0..*" Respuesta       : partida_id >
+Pregunta        "1" o--> "0..*" Respuesta       : pregunta_id >
+Opcion          "1" o--> "0..*" Respuesta       : opcion_elegida_id >
+Jugador         "1" o--> "0..*" Ranking         : jugador_id >
+NivelDificultad "1" o--> "0..*" Ranking         : nivel_id >
+
+' ══════════════════════════════════════════════════════════════
+' RELACIONES — REPOSITORY → MODELS (acceso directo a datos)
+' ══════════════════════════════════════════════════════════════
+
+AuthRepository       --> Usuario         : accede >
+ContenidoRepository  --> Categoria       : accede >
+ContenidoRepository  --> NivelDificultad : accede >
+ContenidoRepository  --> Pregunta        : accede >
+ContenidoRepository  --> Opcion          : accede >
+PartidaRepository    --> Jugador         : accede >
+PartidaRepository    --> Partida         : accede >
+PartidaRepository    --> Respuesta       : accede >
+PartidaRepository    --> Ranking         : accede >
+
+' ══════════════════════════════════════════════════════════════
+' RELACIONES — SERVICE → REPOSITORY (dependencia / inyección)
+' ══════════════════════════════════════════════════════════════
+
+AuthService      "1" --> "1" AuthRepository      : usa (inyectado) >
+ContenidoService "1" --> "1" ContenidoRepository : usa (inyectado) >
+PartidaService   "1" --> "1" PartidaRepository   : usa (inyectado) >
+PartidaService   "1" --> "1" ContenidoRepository : usa (inyectado) >
+
+' ══════════════════════════════════════════════════════════════
+' RELACIONES — SESIONPARTIDA (agregación)
+' ══════════════════════════════════════════════════════════════
+
+PartidaService  "1" ..> "1"    SesionPartida : <<crea>>
+SesionPartida   "1" o-->  "1"  Jugador       : agrega >
+SesionPartida   "1" o-->  "1"  Partida       : agrega >
+SesionPartida   "1" o-->  "0..*" Pregunta    : agrega >
+SesionPartida   "1" o-->  "0..*" Opcion      : agrega >
+
+' ══════════════════════════════════════════════════════════════
+' RELACIONES — UI: HERENCIA (todos los frames heredan de CTkFrame)
+' ══════════════════════════════════════════════════════════════
+
+App                  --|> CTk      : hereda
+LoginFrame           --|> CTkFrame : hereda
+MenuFrame            --|> CTkFrame : hereda
+RankingFrame         --|> CTkFrame : hereda
+AdminPreguntasFrame  --|> CTkFrame : hereda
+AdminCategoriasFrame --|> CTkFrame : hereda
+AdminNivelesFrame    --|> CTkFrame : hereda
+IngresoJugadorFrame  --|> CTkFrame : hereda
+SeleccionNivelFrame  --|> CTkFrame : hereda
+PreguntaFrame        --|> CTkFrame : hereda
+ResultadoFrame       --|> CTkFrame : hereda
+
+' ══════════════════════════════════════════════════════════════
+' RELACIONES — APP → SERVICES (inyección de dependencias)
+' ══════════════════════════════════════════════════════════════
+
+App "1" --> "1" AuthService      : inyecta >
+App "1" --> "1" ContenidoService : inyecta >
+App "1" --> "1" PartidaService   : inyecta >
+
+' ══════════════════════════════════════════════════════════════
+' RELACIONES — APP → FRAMES (creación dinámica)
+' ══════════════════════════════════════════════════════════════
+
+App ..> LoginFrame           : <<crea>>
+App ..> MenuFrame            : <<crea>>
+App ..> RankingFrame         : <<crea>>
+App ..> AdminPreguntasFrame  : <<crea>>
+App ..> AdminCategoriasFrame : <<crea>>
+App ..> AdminNivelesFrame    : <<crea>>
+App ..> IngresoJugadorFrame  : <<crea>>
+App ..> SeleccionNivelFrame  : <<crea>>
+App ..> PreguntaFrame        : <<crea>>
+App ..> ResultadoFrame       : <<crea>>
+
+' ══════════════════════════════════════════════════════════════
+' RELACIONES — FRAMES → SERVICES (uso directo)
+' ══════════════════════════════════════════════════════════════
+
+LoginFrame           --> AuthService      : usa >
+AdminPreguntasFrame  --> ContenidoService : usa >
+AdminCategoriasFrame --> ContenidoService : usa >
+AdminNivelesFrame    --> ContenidoService : usa >
+SeleccionNivelFrame  --> ContenidoService : usa >
+PreguntaFrame        --> Pregunta         : muestra >
+PreguntaFrame        --> Opcion           : muestra >
+ResultadoFrame       --> Ranking          : muestra >
+
+@enduml
